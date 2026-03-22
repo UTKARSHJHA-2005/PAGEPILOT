@@ -1,4 +1,6 @@
 let avatar;
+const script=document.createElement("script");
+
 
 function createAvatar() {
   avatar = document.createElement("div");
