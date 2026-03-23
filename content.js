@@ -115,12 +115,12 @@ function getFullPageContent() {
   return content.slice(0, 5000); // limit
 }
 
-async function getFullExplanation(content) {
+async function getFullExplanation(content, retries = 2) {
   try {
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: "Bearer",
+        Authorization: "Bearer ",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
