@@ -135,6 +135,30 @@ if (window.__PAGEPILOT__) {
     return content.slice(0, 4000);
   }
 
+  async function getFullExplanation(content, sectionCount) {
+    return new Promise((resolve) => {
+      chrome.runtime.sendMessage(
+        {
+          action: "GET_AI",
+          prompt: `Divide into EXACTLY ${sectionCount} sections. Return ONLY JSON array.\n${content}`,
+        },
+        (response) => {
+          if (!response || !response.success) {
+            console.error("AI error:", response?.error);
+            return resolve(null);
+          }
+
+          try {
+            resolve(response.data.choices[0].message.content);
+          } catch (e) {
+            console.error("Parse error:", e);
+            resolve(null);
+          }
+        },
+      );
+    });
+  }
+
   async function startTour(totalTime = 30000, useAI = true) {
     const sections = document.querySelectorAll("h1, h2, h3");
     if (!sections.length) return;
