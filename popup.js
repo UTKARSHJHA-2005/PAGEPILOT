@@ -5,4 +5,11 @@ document.getElementById("start").onclick = async () => {
   });
 
   const time = document.getElementById("time").value;
+  const useAI = document.getElementById("useAI").checked;
+
+  chrome.tabs.sendMessage(tab.id, {
+    action: "START",
+    time: Number(time) * 1000,
+    useAI: useAI,
+  });
 };
