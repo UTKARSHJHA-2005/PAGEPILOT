@@ -174,10 +174,16 @@ if (window.__PAGEPILOT__) {
 
     let parts = [];
 
-    try {
-      parts = JSON.parse(fullExplanation);
-    } catch {
-      console.warn("⚠️ AI parse failed, fallback mode");
+    if (fullExplanation) {
+      try {
+        parts = JSON.parse(fullExplanation);
+      } catch {
+        console.warn("⚠️ AI parse failed");
+      }
+    }
+
+    if (!Array.isArray(parts)) {
+      parts = [];
     }
 
     const timePerSection = totalTime / sections.length;
