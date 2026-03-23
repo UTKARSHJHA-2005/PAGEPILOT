@@ -78,6 +78,9 @@ if (window.__PAGEPILOT__) {
       const speech = new SpeechSynthesisUtterance(
         prefixes[Math.floor(Math.random() * prefixes.length)] + text,
       );
+
+      // ✅ ADD THIS
+      speech.lang = lang + "-" + lang.toUpperCase();
       speech.rate = 1;
       speech.pitch = 1;
 
