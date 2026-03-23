@@ -50,6 +50,20 @@ if (window.__PAGEPILOT__) {
     }
   }
 
+  function isBadAI(text, original) {
+    if (!text) return true;
+
+    // too similar to original content
+    const similarity = text.length / original.length;
+
+    if (similarity > 0.8) return true;
+
+    // looks like copy
+    if (original.includes(text.slice(0, 50))) return true;
+
+    return false;
+  }
+
   function speak(text, maxDuration) {
     return new Promise((resolve) => {
       if (!text) return resolve();
@@ -259,6 +273,11 @@ Content:${content}`,
       el.style.background = "yellow";
 
       let text = parts[i] ? parts[i] : getSectionContent(el);
+
+      if (!text || isBadAI(text, pageContent)) {
+        console.warn("⚠️ Using fallback (AI weak)");
+        text = getSectionContent(el);
+      }
 
       console.log(`📢 Section ${i + 1}:`, text);
 

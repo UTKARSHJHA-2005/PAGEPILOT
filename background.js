@@ -5,7 +5,7 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
     fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: "Bearer ",
+        Authorization: "Bearer YOUR_API_KEY_HERE",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -18,10 +18,35 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
         ],
       }),
     })
-      .then((res) => res.json())
-      .then((data) => sendResponse({ success: true, data }))
-      .catch((err) => sendResponse({ success: false, error: err.toString() }));
+      .then(async (res) => {
+        const data = await res.json();
 
-    return true; // VERY IMPORTANT
+        console.log("🧠 RAW API RESPONSE:", data); // 👈 IMPORTANT
+
+        if (!res.ok) {
+          return sendResponse({
+            success: false,
+            error: data.error?.message || "HTTP error",
+          });
+        }
+
+        if (!data.choices) {
+          return sendResponse({
+            success: false,
+            error: "No choices in response",
+          });
+        }
+
+        sendResponse({
+          success: true,
+          text: data.choices[0].message.content, // 👈 send CLEAN text
+        });
+      })
+      .catch((err) => {
+        console.error("❌ Fetch error:", err);
+        sendResponse({ success: false, error: err.toString() });
+      });
+
+    return true;
   }
 });
