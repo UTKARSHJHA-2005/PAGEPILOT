@@ -36,18 +36,6 @@ async function createAvatar() {
     console.error("Lottie load failed:", err);
   }
 }
-function speak(text, duration) {
-  return new Promise((resolve) => {
-    const speech = new SpeechSynthesisUtterance(text);
-    speech.rate = 1;
-
-    speech.onend = resolve;
-    speechSynthesis.speak(speech);
-
-    // fallback in case speech fails
-    setTimeout(resolve, duration);
-  });
-}
 
 function getSectionContent(heading) {
   let content = heading.innerText + ". ";
