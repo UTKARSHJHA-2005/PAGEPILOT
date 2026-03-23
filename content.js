@@ -2,6 +2,37 @@ let avatar;
 let bounceInterval;
 let lottieInstance;
 
+async function createAvatar() {
+  avatar = document.createElement("div");
+
+  avatar.style.position = "fixed";
+  avatar.style.bottom = "20px";
+  avatar.style.left = "20px";
+  avatar.style.width = "80px";
+  avatar.style.height = "80px";
+  avatar.style.zIndex = "999999";
+
+  document.body.appendChild(avatar);
+
+  try {
+    const url = chrome.runtime.getURL("AIbot.json");
+    console.log("Fetching:", url);
+
+    const res = await fetch(url);
+    const animationData = await res.json();
+
+    lottieInstance = lottie.loadAnimation({
+      container: avatar,
+      renderer: "svg",
+      loop: true,
+      autoplay: true,
+      animationData: animationData, // ✅ IMPORTANT FIX
+    });
+  } catch (err) {
+    console.error("Lottie load failed:", err);
+  }
+}
+
 console.log(chrome.runtime.getURL("AIbot.json"));
 function speak(text, duration) {
   return new Promise((resolve) => {
