@@ -1,7 +1,11 @@
 let avatar;
 let bounceInterval;
 let lottieInstance;
-
+if (window.__AI_AVATAR_RUNNING__) {
+  console.log("⚠️ Already running");
+} else {
+  window.__AI_AVATAR_RUNNING__ = true;
+}
 async function createAvatar() {
   avatar = document.createElement("div");
 
@@ -124,7 +128,7 @@ async function getFullExplanation(content, retries = 2) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "mistralai/mistral-7b-instruct",
+        model: "openrouter/free",
         messages: [
           {
             role: "user",
