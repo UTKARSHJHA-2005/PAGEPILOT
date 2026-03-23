@@ -70,7 +70,7 @@ function getSectionContent(heading) {
     next = next.nextElementSibling;
   }
 
-  return content.trim().slice(0, 3000);
+  return content.slice(0, 3000);
 }
 
 function moveTo(element) {
