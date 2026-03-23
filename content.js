@@ -19,6 +19,25 @@ if (window.__PAGEPILOT__) {
     });
   }
 
+  const fallbackNames = {
+    en: "English",
+    hi: "Hindi",
+    ta: "Tamil",
+    te: "Telugu",
+    bn: "Bengali",
+    mr: "Marathi",
+    gu: "Gujarati",
+    kn: "Kannada",
+    ml: "Malayalam",
+    pa: "Punjabi",
+    fr: "French",
+    es: "Spanish",
+    de: "German",
+    ar: "Arabic",
+    zh: "Chinese",
+    ja: "Japanese",
+  };
+
   function getLangCode(name) {
     const map = {
       English: "en-US",
@@ -246,7 +265,7 @@ IMPORTANT:
 
 Divide into EXACTLY ${sectionCount} sections.
 
-Return ONLY a JSON array.
+Return ONLY a JSON array of strings.
 
 Content:${content}`,
         },
@@ -334,6 +353,11 @@ Content:${content}`,
 
       // let text = parts[i] ? parts[i] : getSectionContent(el);
       let text = parts[i];
+
+      // 🔥 FIX: convert object → string
+      if (typeof text === "object" && text !== null) {
+        text = Object.values(text)[0];
+      }
       console.log("🔍 TEXT TYPE:", typeof text, text);
       if (typeof text !== "string") {
         console.warn("⚠️ Invalid AI text → fallback");
