@@ -1,6 +1,10 @@
 let avatar;
 let bounceInterval;
 let lottieInstance;
+
+const script = document.createElement("script");
+script.src = chrome.runtime.getURL("lottie.min.js");
+document.head.appendChild(script);
 if (window.__AI_AVATAR_RUNNING__) {
   console.log("⚠️ Already running");
 } else {
