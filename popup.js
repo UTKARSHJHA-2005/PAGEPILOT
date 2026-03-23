@@ -6,6 +6,7 @@ document.getElementById("start").onclick = async () => {
     active: true,
     currentWindow: true,
   });
+  const lang = document.getElementById("lang").value;
 
   try {
     // ✅ Try sending message first
@@ -13,6 +14,7 @@ document.getElementById("start").onclick = async () => {
       action: "START",
       time,
       useAI,
+      lang,
     });
     console.log("Started");
   } catch (err) {
