@@ -120,7 +120,7 @@ async function getFullExplanation(content) {
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: "Bearer sk-or-YOUR_KEY",
+        Authorization: "Bearer",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -176,7 +176,7 @@ async function startTour(totalTime = 30000) {
     moveTo(el);
     el.style.background = "yellow";
     const sectionText = getSectionContent(el);
-    const aiText = await getAIExplanation(sectionText);
+    const aiText = await getFullExplanation(sectionText);
     await speak(aiText, timePerSection);
   }
 }
