@@ -157,7 +157,23 @@ if (window.__PAGEPILOT__) {
       chrome.runtime.sendMessage(
         {
           action: "GET_AI",
-          prompt: `Divide into EXACTLY ${sectionCount} sections. Return ONLY JSON array.\n${content}`,
+          prompt: `You are an AI tutor.
+
+Explain the following webpage in SIMPLE, HUMAN, BEGINNER-FRIENDLY language.
+
+Rules:
+- Do NOT copy the content
+- Do NOT repeat sentences
+- EXPLAIN like a teacher
+- Use simple words
+- Keep each explanation short (10-20 lines)
+- Make it engaging
+
+Divide into EXACTLY ${sectionCount} sections.
+
+Return ONLY a JSON array.
+
+Content:${content}`,
         },
         (response) => {
           if (!response || !response.success) {
