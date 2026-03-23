@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "AI Avatar Guide",
+  "name": "PAGEPILOT",
   "version": "1.0",
   "permissions": ["activeTab", "scripting"],
   "action": {
