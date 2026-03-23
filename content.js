@@ -71,6 +71,28 @@ function moveTo(element) {
   }, 1500);
 }
 
+async function getAIExplanation(text) {
+  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer YOUR_API_KEY",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: "openai/gpt-4o-mini",
+      messages: [
+        {
+          role: "user",
+          content: `Explain this section simply: ${text}`
+        }
+      ]
+    })
+  });
+
+  const data = await res.json();
+  return data.choices[0].message.content;
+}
+
 function scrollToElement(element) {
   element.scrollIntoView({
     behavior: "smooth",
