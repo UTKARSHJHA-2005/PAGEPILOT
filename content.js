@@ -101,6 +101,20 @@ function moveTo(element) {
   }, 1500);
 }
 
+function getFullPageContent() {
+  const elements = document.querySelectorAll("h1, h2, h3, p");
+
+  let content = "";
+
+  elements.forEach((el) => {
+    if (el.innerText) {
+      content += el.innerText + "\n";
+    }
+  });
+
+  return content.slice(0, 5000); // limit
+}
+
 async function getAIExplanation(text) {
   try {
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
