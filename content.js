@@ -242,7 +242,7 @@ Rules:
 - Make it engaging
 
 IMPORTANT:
-- Explain everything in ${lang} language
+- Explain everything in ${langName} language
 
 Divide into EXACTLY ${sectionCount} sections.
 
