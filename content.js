@@ -37,8 +37,6 @@ function speak(text, duration) {
   });
 }
 
-let bounceInterval;
-
 function moveTo(element) {
   const rect = element.getBoundingClientRect();
 
