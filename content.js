@@ -40,16 +40,6 @@ function speak(text, duration) {
   });
 }
 
-function moveTo(element) {
-  const rect = element.getBoundingClientRect();
-
-  const top = window.scrollY + rect.top;
-  const left = rect.left - 70;
-
-  avatar.style.top = top + "px";
-  avatar.style.left = left + "px";
-}
-
 function scrollToElement(element) {
   element.scrollIntoView({
     behavior: "smooth",
