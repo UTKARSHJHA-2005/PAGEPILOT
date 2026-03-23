@@ -14,6 +14,7 @@ document.getElementById("start").onclick = async () => {
       time,
       useAI,
     });
+    console.log("Started");
   } catch (err) {
     console.log("⚠️ Content script not ready, injecting...");
 

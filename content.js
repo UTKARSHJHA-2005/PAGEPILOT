@@ -1,4 +1,3 @@
-// جلوگیری duplicate injection
 if (window.__PAGEPILOT__) {
   console.log("⚠️ Already running");
 } else {
@@ -136,61 +135,17 @@ if (window.__PAGEPILOT__) {
     return content.slice(0, 4000);
   }
 
-  // ✅ FIXED AI FUNCTION
-  async function getFullExplanation(content, sectionCount, retries = 2) {
-    try {
-      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer ",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "mistralai/mistral-7b-instruct",
-          messages: [
-            {
-              role: "user",
-              content: `
-Divide this webpage into EXACTLY ${sectionCount} sections.
-Return ONLY a JSON array.
-
-Example:
-["explanation1", "explanation2"]
-
-Content:
-${content}
-              `,
-            },
-          ],
-        }),
-      });
-
-      if (res.status === 429 && retries > 0) {
-        await new Promise((r) => setTimeout(r, 2000));
-        return getFullExplanation(content, sectionCount, retries - 1);
-      }
-
-      const data = await res.json();
-
-      if (!data.choices) throw new Error("No response");
-
-      return data.choices[0].message.content;
-    } catch (err) {
-      console.error("AI error:", err);
-      return null;
-    }
-  }
-
-  async function startTour(totalTime = 30000) {
+  async function startTour(totalTime = 30000, useAI = true) {
     const sections = document.querySelectorAll("h1, h2, h3");
     if (!sections.length) return;
 
     const pageContent = getFullPageContent();
 
-    let fullExplanation = await getFullExplanation(
-      pageContent,
-      sections.length,
-    );
+    let fullExplanation = null;
+
+    if (useAI) {
+      fullExplanation = await getFullExplanation(pageContent, sections.length);
+    }
 
     let parts = [];
 
