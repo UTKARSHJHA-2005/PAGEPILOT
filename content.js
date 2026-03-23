@@ -115,6 +115,41 @@ function getFullPageContent() {
   return content.slice(0, 5000); // limit
 }
 
+async function getFullExplanation(content) {
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer sk-or-YOUR_KEY",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "mistralai/mistral-7b-instruct",
+        messages: [
+          {
+            role: "user",
+            content: `
+Explain this webpage like a teacher step-by-step.
+Break it into sections clearly:
+
+${content}
+            `,
+          },
+        ],
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!data.choices) throw new Error("No response");
+
+    return data.choices[0].message.content;
+  } catch (err) {
+    console.error(err);
+    return "Unable to generate explanation.";
+  }
+}
+
 function scrollToElement(element) {
   element.scrollIntoView({
     behavior: "smooth",
