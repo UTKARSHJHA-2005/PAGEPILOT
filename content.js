@@ -80,13 +80,13 @@ if (window.__PAGEPILOT__) {
       speechSynthesis.speak(speech);
 
       // OPTIONAL timeout (only if stuck)
-      setTimeout(() => {
-        if (!finished) {
-          speechSynthesis.cancel();
-          finished = true;
-          resolve();
-        }
-      }, maxDuration);
+      // setTimeout(() => {
+      //   if (!finished) {
+      //     speechSynthesis.cancel();
+      //     finished = true;
+      //     resolve();
+      //   }
+      // }, maxDuration);
     });
   }
 
