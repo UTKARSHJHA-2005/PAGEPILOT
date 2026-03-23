@@ -125,31 +125,6 @@ if (window.__PAGEPILOT__) {
     return content.slice(0, 2000);
   }
 
-  function moveTo(element) {
-    const rect = element.getBoundingClientRect();
-
-    const top = window.scrollY + rect.top;
-    const left = rect.left - 100;
-
-    avatar.style.transition = "all 1.5s linear";
-    avatar.style.top = top + "px";
-    avatar.style.left = left + "px";
-
-    if (bounceInterval) clearInterval(bounceInterval);
-
-    let bounce = true;
-
-    bounceInterval = setInterval(() => {
-      avatar.style.transform = bounce ? "translateY(-8px)" : "translateY(8px)";
-      bounce = !bounce;
-    }, 300);
-
-    setTimeout(() => {
-      clearInterval(bounceInterval);
-      avatar.style.transform = "translateY(0px)";
-    }, 1500);
-  }
-
   function scrollToElement(element) {
     element.scrollIntoView({
       behavior: "smooth",
