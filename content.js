@@ -216,6 +216,28 @@ Content:${content}`,
     });
   }
 
+  function cleanAIResponse(text) {
+    if (!text) return null;
+
+    try {
+      text = text.replace(/```json|```/g, "").trim();
+
+      // ✅ safer extraction
+      const start = text.indexOf("[");
+      const end = text.lastIndexOf("]");
+
+      if (start !== -1 && end !== -1) {
+        const jsonString = text.slice(start, end + 1);
+        return JSON.parse(jsonString);
+      }
+
+      return null;
+    } catch (e) {
+      console.warn("⚠️ Clean parse failed:", e);
+      return null;
+    }
+  }
+
   async function startTour(totalTime = 30000, useAI = true) {
     const sections = document.querySelectorAll("h1, h2, h3");
     if (!sections.length) return;
