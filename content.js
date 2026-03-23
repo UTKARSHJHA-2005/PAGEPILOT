@@ -36,8 +36,6 @@ async function createAvatar() {
     console.error("Lottie load failed:", err);
   }
 }
-console.log(typeof lottie);
-console.log(chrome.runtime.getURL("AIbot.json"));
 function speak(text, duration) {
   return new Promise((resolve) => {
     const speech = new SpeechSynthesisUtterance(text);
