@@ -3,6 +3,30 @@ const script = document.createElement("script");
 script.src = "https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js";
 document.head.appendChild(script);
 
+let lottieInstance;
+
+function createAvatar() {
+  avatar = document.createElement("div");
+
+  avatar.style.position = "absolute";
+  avatar.style.width = "80px";
+  avatar.style.height = "80px";
+  avatar.style.zIndex = "9999";
+
+  document.body.appendChild(avatar);
+
+  // Load Lottie after script is ready
+  setTimeout(() => {
+    lottieInstance = lottie.loadAnimation({
+      container: avatar,
+      renderer: "svg",
+      loop: true,
+      autoplay: true,
+      path: chrome.runtime.getURL("avatar.json") // your Lottie file
+    });
+  }, 500);
+}
+
 function speak(text, duration) {
   return new Promise((resolve) => {
     const speech = new SpeechSynthesisUtterance(text);
