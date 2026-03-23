@@ -44,6 +44,17 @@ if (window.__AI_AVATAR_RUNNING__) {
     }
   }
 
+  async function waitForLottie() {
+    return new Promise((resolve) => {
+      const check = setInterval(() => {
+        if (typeof lottie !== "undefined") {
+          clearInterval(check);
+          resolve();
+        }
+      }, 100);
+    });
+  }
+
   function speak(text, maxDuration) {
     return new Promise((resolve) => {
       speechSynthesis.cancel(); // stop previous
