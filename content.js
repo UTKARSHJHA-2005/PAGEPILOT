@@ -195,6 +195,29 @@ if (window.__PAGEPILOT__) {
     return content.slice(0, 4000);
   }
 
+  function getLangCode(code) {
+    const map = {
+      en: "en-US",
+      hi: "hi-IN",
+      ta: "ta-IN",
+      te: "te-IN",
+      bn: "bn-IN",
+      mr: "mr-IN",
+      gu: "gu-IN",
+      kn: "kn-IN",
+      ml: "ml-IN",
+      pa: "pa-IN",
+      fr: "fr-FR",
+      es: "es-ES",
+      de: "de-DE",
+      ar: "ar-SA",
+      zh: "zh-CN",
+      ja: "ja-JP",
+    };
+
+    return map[code] || "en-US";
+  }
+
   async function getFullExplanation(content, sectionCount, lang) {
     console.log("📤 Sending to background...");
     return new Promise((resolve) => {
