@@ -208,7 +208,7 @@ ${content}
 
       if (fullExplanation) {
         const parts = fullExplanation.split("\n");
-        text = parts[i] || el.innerText;
+        text = parts[i];
       } else {
         // 🔥 FALLBACK MODE (NO AI)
         text = getSectionContent(el);
