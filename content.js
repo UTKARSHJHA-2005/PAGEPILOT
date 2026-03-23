@@ -216,26 +216,6 @@ Content:${content}`,
     });
   }
 
-  function cleanAIResponse(text) {
-    if (!text) return null;
-
-    try {
-      // remove markdown ```json ```
-      text = text.replace(/```json|```/g, "").trim();
-
-      // extract JSON array only
-      const match = text.match(/\[.*\]/s);
-      if (match) {
-        return JSON.parse(match[0]);
-      }
-
-      return null;
-    } catch (e) {
-      console.warn("⚠️ Clean parse failed:", e);
-      return null;
-    }
-  }
-
   async function startTour(totalTime = 30000, useAI = true) {
     const sections = document.querySelectorAll("h1, h2, h3");
     if (!sections.length) return;
