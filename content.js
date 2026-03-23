@@ -164,7 +164,8 @@ if (window.__PAGEPILOT__) {
             console.error("AI error:", response?.error);
             return resolve(null);
           }
-
+          const aiText = response.data?.choices?.[0]?.message?.content;
+          console.log("🧠 RAW AI RESPONSE:\n", aiText);
           try {
             resolve(response.data.choices[0].message.content);
           } catch (e) {
