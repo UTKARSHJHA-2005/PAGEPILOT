@@ -51,14 +51,12 @@ if (window.__PAGEPILOT__) {
   }
 
   function isBadAI(text, original) {
-    if (!text) return true;
+    if (!text || typeof text !== "string") return true;
 
-    // too similar to original content
     const similarity = text.length / original.length;
 
     if (similarity > 0.8) return true;
 
-    // looks like copy
     if (original.includes(text.slice(0, 50))) return true;
 
     return false;
