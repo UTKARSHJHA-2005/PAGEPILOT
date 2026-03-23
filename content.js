@@ -2,28 +2,7 @@ let avatar;
 let bounceInterval;
 let lottieInstance;
 
-function createAvatar() {
-  avatar = document.createElement("div");
-
-  avatar.style.position = "absolute";
-  avatar.style.width = "80px";
-  avatar.style.height = "80px";
-  avatar.style.zIndex = "9999";
-
-  document.body.appendChild(avatar);
-
-  // Load Lottie after script is ready
-  setTimeout(() => {
-    lottieInstance = lottie.loadAnimation({
-      container: avatar,
-      renderer: "svg",
-      loop: true,
-      autoplay: true,
-      path: chrome.runtime.getURL("AIbot.json"), // your Lottie file
-    });
-  }, 500);
-}
-
+console.log(chrome.runtime.getURL("AIbot.json"));
 function speak(text, duration) {
   return new Promise((resolve) => {
     const speech = new SpeechSynthesisUtterance(text);
