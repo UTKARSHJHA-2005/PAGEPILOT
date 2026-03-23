@@ -1,5 +1,5 @@
 let avatar;
-
+let bounceInterval;
 let lottieInstance;
 
 function createAvatar() {
