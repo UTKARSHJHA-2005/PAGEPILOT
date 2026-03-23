@@ -58,19 +58,6 @@ function speak(text, maxDuration) {
   });
 }
 
-function getSectionContent(heading) {
-  let content = heading.innerText + ". ";
-
-  let next = heading.nextElementSibling;
-
-  while (next && !/^H[1-3]$/.test(next.tagName)) {
-    content += next.innerText + " ";
-    next = next.nextElementSibling;
-  }
-
-  return content.slice(0, 2000); // limit size
-}
-
 function moveTo(element) {
   const rect = element.getBoundingClientRect();
 
