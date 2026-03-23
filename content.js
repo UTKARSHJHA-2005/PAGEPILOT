@@ -49,6 +49,47 @@ if (window.__PAGEPILOT__) {
       console.error("❌ Lottie load failed:", err);
     }
   }
+
+  function speak(text, maxDuration) {
+    return new Promise((resolve) => {
+      if (!text) return resolve();
+
+      speechSynthesis.cancel();
+
+      const speech = new SpeechSynthesisUtterance(text);
+
+      speech.rate = 1;
+      speech.pitch = 1;
+
+      let finished = false;
+
+      speech.onend = () => {
+        if (!finished) {
+          finished = true;
+          resolve();
+        }
+      };
+
+      speech.onerror = () => {
+        if (!finished) {
+          finished = true;
+          resolve();
+        }
+      };
+
+      speechSynthesis.speak(speech);
+
+      // OPTIONAL timeout (only if stuck)
+      setTimeout(() => {
+        if (!finished) {
+          speechSynthesis.cancel();
+          finished = true;
+          resolve();
+        }
+      }, maxDuration);
+    });
+  }
+
   function getSectionContent(heading) {
     let content = heading.innerText + ". ";
 
