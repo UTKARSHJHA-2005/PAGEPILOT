@@ -35,3 +35,18 @@ document.getElementById("start").onclick = async () => {
     });
   }
 };
+async function loadLanguages() {
+  const res = await fetch("https://libretranslate.de/languages");
+  const data = await res.json();
+
+  const select = document.getElementById("lang");
+
+  select.innerHTML = "";
+
+  data.forEach((lang) => {
+    const option = document.createElement("option");
+    option.value = lang.code; // 🔥 important
+    option.textContent = lang.name;
+    select.appendChild(option);
+  });
+}
