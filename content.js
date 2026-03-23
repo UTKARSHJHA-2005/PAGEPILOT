@@ -118,8 +118,7 @@ async function startTour(totalTime = 30000) {
     // move avatar
     moveTo(el);
     el.style.background = "yellow";
-    const text = "This section talks about " + el.innerText;
-
+const aiText = await getAIExplanation(el.innerText);
     // speak + wait
     await speak(text, timePerSection);
   }
