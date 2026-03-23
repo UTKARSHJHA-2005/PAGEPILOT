@@ -22,7 +22,7 @@ function createAvatar() {
       renderer: "svg",
       loop: true,
       autoplay: true,
-      path: chrome.runtime.getURL("avatar.json") // your Lottie file
+      path: chrome.runtime.getURL("AIbot.json") // your Lottie file
     });
   }, 500);
 }
