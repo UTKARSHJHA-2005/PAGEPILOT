@@ -97,7 +97,7 @@ if (window.__PAGEPILOT__) {
       );
 
       // ✅ ADD THIS
-      speech.lang = lang + "-" + lang.toUpperCase();
+      speech.lang = lang;
       speech.rate = 1;
       speech.pitch = 1;
 
