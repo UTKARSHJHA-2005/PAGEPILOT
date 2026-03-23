@@ -5,9 +5,4 @@ document.getElementById("start").onclick = async () => {
   });
 
   const time = document.getElementById("time").value;
-
-  chrome.tabs.sendMessage(tab.id, {
-    action: "START",
-    time: Number(time) * 1000,
-  });
 };
