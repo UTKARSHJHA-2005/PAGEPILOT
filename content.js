@@ -240,7 +240,7 @@ Content:${content}`,
     }
   }
 
-  async function startTour(totalTime = 30000, useAI = true) {
+  async function startTour(totalTime = 30000, useAI = true, lang = "en") {
     const sections = document.querySelectorAll("h1, h2, h3");
     if (!sections.length) return;
 
