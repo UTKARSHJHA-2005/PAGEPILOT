@@ -155,7 +155,7 @@ ${content}
 
     return data.choices[0].message.content;
   } catch (err) {
-    console.error(err);
+    console.error("AI error:", err);
     return "Unable to generate explanation.";
   }
 }
