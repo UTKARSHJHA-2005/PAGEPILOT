@@ -319,7 +319,8 @@ Content:${content}`,
 
       console.log(`📢 Section ${i + 1}:`, text);
 
-      await speak(text, lang);
+      const code = getLangCode(lang);
+      await speak(text, code);
     }
   }
 
