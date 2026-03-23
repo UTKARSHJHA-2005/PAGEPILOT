@@ -6,11 +6,17 @@
   "action": {
     "default_popup": "popup.html"
   },
+  "web_accessible_resources": [
+    {
+      "resources": ["AIbot.json"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "host_permissions": ["https://openrouter.ai/*"],
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["lottie.min.js","content.js"]
+      "js": ["lottie.min.js", "content.js"]
     }
   ]
 }
