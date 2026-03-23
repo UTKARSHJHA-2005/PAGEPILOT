@@ -273,7 +273,13 @@ Content:${content}`,
 
       el.style.background = "yellow";
 
-      let text = parts[i] ? parts[i] : getSectionContent(el);
+      // let text = parts[i] ? parts[i] : getSectionContent(el);
+      let text = parts[i];
+
+      if (typeof text !== "string") {
+        console.warn("⚠️ Invalid AI text → fallback");
+        text = getSectionContent(el);
+      }
 
       if (!text || isBadAI(text, pageContent)) {
         console.warn("⚠️ Using fallback (AI weak)");
