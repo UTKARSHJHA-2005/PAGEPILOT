@@ -85,7 +85,7 @@ async function getAIExplanation(text) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "mistralai/mistral-7b-instruct",
+        model: "openrouter/free",
         messages: [
           {
             role: "user",
