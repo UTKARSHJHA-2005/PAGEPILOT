@@ -119,8 +119,7 @@ async function startTour(totalTime = 30000) {
     moveTo(el);
     el.style.background = "yellow";
 const aiText = await getAIExplanation(el.innerText);
-    // speak + wait
-    await speak(text, timePerSection);
+    await speak(aiText, timePerSection);
   }
 }
 
