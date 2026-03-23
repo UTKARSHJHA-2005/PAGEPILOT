@@ -275,7 +275,7 @@ Content:${content}`,
 
       // let text = parts[i] ? parts[i] : getSectionContent(el);
       let text = parts[i];
-
+      console.log("🔍 TEXT TYPE:", typeof text, text);
       if (typeof text !== "string") {
         console.warn("⚠️ Invalid AI text → fallback");
         text = getSectionContent(el);
