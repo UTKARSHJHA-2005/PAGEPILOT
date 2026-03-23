@@ -228,7 +228,7 @@ Content:${content}`,
             return resolve(null);
           }
           try {
-            const aiText = response.text;
+            const aiText = response.data.choices[0].message.content;
             console.log("🧠 RAW AI RESPONSE:\n", aiText);
 
             resolve(aiText);
