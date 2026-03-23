@@ -75,7 +75,7 @@ async function loadLanguages() {
 
     select.value = "en";
   } catch (err) {
-    console.error("❌ API failed, using fallback list");
+    console.error("❌ API failed, using fallback list", err);
 
     const select = document.getElementById("lang");
     select.innerHTML = "";
