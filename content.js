@@ -219,8 +219,6 @@ if (window.__PAGEPILOT__) {
       parts = [];
     }
 
-    const timePerSection = totalTime / sections.length;
-
     for (let i = 0; i < sections.length; i++) {
       const el = sections[i];
 
