@@ -10,6 +10,8 @@ if (window.__AI_AVATAR_RUNNING__) {
 } else {
   window.__AI_AVATAR_RUNNING__ = true;
   async function createAvatar() {
+    await waitForLottie(); // ✅ WAIT FIRST
+
     avatar = document.createElement("div");
 
     avatar.style.position = "fixed";
@@ -21,27 +23,18 @@ if (window.__AI_AVATAR_RUNNING__) {
 
     document.body.appendChild(avatar);
 
-    try {
-      if (typeof lottie === "undefined") {
-        console.error("❌ Lottie not loaded. Check manifest!");
-        return;
-      }
-      const url = chrome.runtime.getURL("AIbot.json");
-      console.log("Fetching:", url);
+    const url = chrome.runtime.getURL("AIbot.json");
 
-      const res = await fetch(url);
-      const animationData = await res.json();
+    const res = await fetch(url);
+    const animationData = await res.json();
 
-      lottieInstance = lottie.loadAnimation({
-        container: avatar,
-        renderer: "svg",
-        loop: true,
-        autoplay: true,
-        animationData: animationData, // ✅ IMPORTANT FIX
-      });
-    } catch (err) {
-      console.error("Lottie load failed:", err);
-    }
+    lottieInstance = lottie.loadAnimation({
+      container: avatar,
+      renderer: "svg",
+      loop: true,
+      autoplay: true,
+      animationData,
+    });
   }
 
   async function waitForLottie() {
