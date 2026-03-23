@@ -37,6 +37,38 @@ function speak(text, duration) {
   });
 }
 
+let bounceInterval;
+
+function moveTo(element) {
+  const rect = element.getBoundingClientRect();
+
+  const top = window.scrollY + rect.top;
+  const left = rect.left - 90;
+
+  avatar.style.transition = "all 1.5s linear";
+
+  avatar.style.top = top + "px";
+  avatar.style.left = left + "px";
+
+  // CLEAR previous interval
+  if (bounceInterval) clearInterval(bounceInterval);
+
+  let bounce = true;
+
+  bounceInterval = setInterval(() => {
+    avatar.style.transform = bounce
+      ? "translateY(-10px)"
+      : "translateY(10px)";
+    bounce = !bounce;
+  }, 300);
+
+  // stop after movement
+  setTimeout(() => {
+    clearInterval(bounceInterval);
+    avatar.style.transform = "translateY(0px)";
+  }, 1500);
+}
+
 async function getAIExplanation(text) {
   try {
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
