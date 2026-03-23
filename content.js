@@ -139,6 +139,16 @@ ${content}
       }),
     });
 
+    if (res.status === 429) {
+      if (retries > 0) {
+        console.warn("⏳ Rate limited. Retrying...");
+        await new Promise((r) => setTimeout(r, 2000)); // wait 2 sec
+        return getFullExplanation(content, retries - 1);
+      } else {
+        throw new Error("Rate limit exceeded");
+      }
+    }
+
     const data = await res.json();
 
     if (!data.choices) throw new Error("No response");
