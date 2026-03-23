@@ -3,18 +3,6 @@ const script = document.createElement("script");
 script.src = "https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js";
 document.head.appendChild(script);
 
-function createAvatar() {
-  avatar = document.createElement("div");
-  avatar.innerText = "🤖";
-
-  avatar.style.position = "absolute";
-  avatar.style.fontSize = "40px";
-  avatar.style.zIndex = "9999";
-  avatar.style.transition = "all 1.5s ease-in-out"; // smooth movement
-
-  document.body.appendChild(avatar);
-}
-
 function speak(text, duration) {
   return new Promise((resolve) => {
     const speech = new SpeechSynthesisUtterance(text);
