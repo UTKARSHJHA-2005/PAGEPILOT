@@ -62,7 +62,7 @@ if (window.__PAGEPILOT__) {
     return false;
   }
 
-  function speak(text, maxDuration) {
+  function speak(text, lang) {
     return new Promise((resolve) => {
       if (!text) return resolve();
 
@@ -178,7 +178,7 @@ if (window.__PAGEPILOT__) {
     return content.slice(0, 4000);
   }
 
-  async function getFullExplanation(content, sectionCount) {
+  async function getFullExplanation(content, sectionCount, lang) {
     console.log("📤 Sending to background...");
     return new Promise((resolve) => {
       chrome.runtime.sendMessage(
