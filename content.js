@@ -32,7 +32,7 @@ async function createAvatar() {
     console.error("Lottie load failed:", err);
   }
 }
-
+console.log(typeof lottie);
 console.log(chrome.runtime.getURL("AIbot.json"));
 function speak(text, duration) {
   return new Promise((resolve) => {
@@ -149,9 +149,9 @@ async function startTour(totalTime = 30000) {
   }
 }
 
-chrome.runtime.onMessage.addListener((req) => {
+chrome.runtime.onMessage.addListener(async (req) => {
   if (req.action === "START") {
-    createAvatar();
+    await createAvatar(); // ✅ WAIT for avatar
     startTour(req.time || 40000);
   }
 });
