@@ -91,7 +91,7 @@ async function getAIExplanation(text) {
         messages: [
           {
             role: "user",
-            content: `Explain this simply in 2 lines: ${text}`,
+            content: `Explain this in a clear, engaging way like a teacher:\n${text}`,
           },
         ],
       }),
