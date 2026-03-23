@@ -1,7 +1,4 @@
 let avatar;
-const script=document.createElement("script");
-script.src="";
-document.head.appendChild(script);
 
 function createAvatar() {
   avatar = document.createElement("div");
@@ -10,47 +7,69 @@ function createAvatar() {
   avatar.style.position = "absolute";
   avatar.style.fontSize = "40px";
   avatar.style.zIndex = "9999";
+  avatar.style.transition = "all 1.5s ease-in-out"; // smooth movement
 
   document.body.appendChild(avatar);
 }
 
-function speak(text) {
-  const speech = new SpeechSynthesisUtterance(text);
-  speech.rate = 1;
-  speechSynthesis.speak(speech);
+function speak(text, duration) {
+  return new Promise((resolve) => {
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.rate = 1;
+
+    speech.onend = resolve;
+    speechSynthesis.speak(speech);
+
+    // fallback in case speech fails
+    setTimeout(resolve, duration);
+  });
 }
 
 function moveTo(element) {
   const rect = element.getBoundingClientRect();
 
-  avatar.style.top = window.scrollY + rect.top + "px";
-  avatar.style.left = rect.left - 60 + "px";
+  const top = window.scrollY + rect.top;
+  const left = rect.left - 70;
+
+  avatar.style.top = top + "px";
+  avatar.style.left = left + "px";
 }
 
-function startTour() {
+function scrollToElement(element) {
+  element.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
+}
+
+async function startTour(totalTime = 30000) {
   const sections = document.querySelectorAll("h1, h2, h3");
 
-  let i = 0;
+  if (!sections.length) return;
 
-  function next() {
-    if (i >= sections.length) return;
+  const timePerSection = totalTime / sections.length;
 
+  for (let i = 0; i < sections.length; i++) {
     const el = sections[i];
 
+    // scroll to section
+    scrollToElement(el);
+
+    await new Promise((r) => setTimeout(r, 1000));
+
+    // move avatar
     moveTo(el);
 
-    speak("This section talks about " + el.innerText);
+    const text = "This section talks about " + el.innerText;
 
-    i++;
-    setTimeout(next, 4000);
+    // speak + wait
+    await speak(text, timePerSection);
   }
-
-  next();
 }
 
 chrome.runtime.onMessage.addListener((req) => {
   if (req.action === "START") {
     createAvatar();
-    startTour();
+    startTour(40000); // total tour time (40 sec)
   }
 });
