@@ -56,7 +56,12 @@ function moveTo(element) {
 
   // Add bounce while moving
   let bounce = true;
-
+setInterval(() => {
+  avatar.style.transform =
+    avatar.style.transform === "translateY(-5px)"
+      ? "translateY(5px)"
+      : "translateY(-5px)";
+}, 500);
   const interval = setInterval(() => {
     avatar.style.transform = bounce
       ? "translateY(-10px)"
