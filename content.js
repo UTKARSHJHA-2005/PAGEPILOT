@@ -1,7 +1,4 @@
 let avatar;
-const script = document.createElement("script");
-script.src = "https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js";
-document.head.appendChild(script);
 
 let lottieInstance;
 
@@ -81,7 +78,7 @@ async function getAIExplanation(text) {
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": "Bearer YOUR_API_KEY",
+        "Authorization": "Bearer ",
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
