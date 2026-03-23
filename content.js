@@ -138,3 +138,10 @@ async function startTour(totalTime = 30000) {
     await speak(aiText, timePerSection);
   }
 }
+
+chrome.runtime.onMessage.addListener((req) => {
+  if (req.action === "START") {
+    createAvatar();
+    startTour(req.time || 40000);
+  }
+});
