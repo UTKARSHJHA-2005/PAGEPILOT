@@ -160,6 +160,26 @@ if (window.__PAGEPILOT__) {
     });
   }
 
+  function cleanAIResponse(text) {
+    if (!text) return null;
+
+    try {
+      // remove markdown ```json ```
+      text = text.replace(/```json|```/g, "").trim();
+
+      // extract JSON array only
+      const match = text.match(/\[.*\]/s);
+      if (match) {
+        return JSON.parse(match[0]);
+      }
+
+      return null;
+    } catch (e) {
+      console.warn("⚠️ Clean parse failed:", e);
+      return null;
+    }
+  }
+
   async function startTour(totalTime = 30000, useAI = true) {
     const sections = document.querySelectorAll("h1, h2, h3");
     if (!sections.length) return;
@@ -172,14 +192,11 @@ if (window.__PAGEPILOT__) {
       fullExplanation = await getFullExplanation(pageContent, sections.length);
     }
 
-    let parts = [];
+    let parts = cleanAIResponse(fullExplanation);
 
-    if (fullExplanation) {
-      try {
-        parts = JSON.parse(fullExplanation);
-      } catch {
-        console.warn("⚠️ AI parse failed");
-      }
+    if (!Array.isArray(parts)) {
+      console.warn("⚠️ AI failed → fallback mode");
+      parts = [];
     }
 
     if (!Array.isArray(parts)) {
