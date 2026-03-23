@@ -1,42 +1,14 @@
-let avatar;
-let bounceInterval;
-let lottieInstance;
-
-const script = document.createElement("script");
-script.src = chrome.runtime.getURL("lottie.min.js");
-document.head.appendChild(script);
-if (window.__AI_AVATAR_RUNNING__) {
+// جلوگیری duplicate injection
+if (window.__PAGEPILOT__) {
   console.log("⚠️ Already running");
 } else {
-  window.__AI_AVATAR_RUNNING__ = true;
-  async function createAvatar() {
-    await waitForLottie(); // ✅ WAIT FIRST
+  window.__PAGEPILOT__ = true;
 
-    avatar = document.createElement("div");
+  let avatar = null;
+  let bounceInterval = null;
+  let lottieInstance = null;
 
-    avatar.style.position = "fixed";
-    avatar.style.bottom = "20px";
-    avatar.style.left = "20px";
-    avatar.style.width = "80px";
-    avatar.style.height = "80px";
-    avatar.style.zIndex = "999999";
-
-    document.body.appendChild(avatar);
-
-    const url = chrome.runtime.getURL("AIbot.json");
-
-    const res = await fetch(url);
-    const animationData = await res.json();
-
-    lottieInstance = lottie.loadAnimation({
-      container: avatar,
-      renderer: "svg",
-      loop: true,
-      autoplay: true,
-      animationData,
-    });
-  }
-
+  // ✅ Wait for Lottie (since loaded via manifest)
   async function waitForLottie() {
     return new Promise((resolve) => {
       const check = setInterval(() => {
@@ -48,13 +20,45 @@ if (window.__AI_AVATAR_RUNNING__) {
     });
   }
 
+  async function createAvatar() {
+    await waitForLottie();
+
+    avatar = document.createElement("div");
+
+    avatar.style.position = "absolute"; // IMPORTANT FIX
+    avatar.style.left = "20px";
+    avatar.style.top = "20px";
+    avatar.style.width = "80px";
+    avatar.style.height = "80px";
+    avatar.style.zIndex = "999999";
+
+    document.body.appendChild(avatar);
+
+    try {
+      const url = chrome.runtime.getURL("AIbot.json");
+      const res = await fetch(url);
+      const animationData = await res.json();
+
+      lottieInstance = lottie.loadAnimation({
+        container: avatar,
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        animationData,
+      });
+    } catch (err) {
+      console.error("❌ Lottie load failed:", err);
+    }
+  }
+
   function speak(text, maxDuration) {
     return new Promise((resolve) => {
+      if (!text) return resolve();
+
       speechSynthesis.cancel();
 
       const speech = new SpeechSynthesisUtterance(text);
 
-      // dynamic speed based on time
       const words = text.split(" ").length;
       const estimatedTime = (words / 2.5) * 1000;
 
@@ -83,37 +87,39 @@ if (window.__AI_AVATAR_RUNNING__) {
       next = next.nextElementSibling;
     }
 
-    return content.slice(0, 3000);
+    return content.slice(0, 2000);
   }
 
   function moveTo(element) {
     const rect = element.getBoundingClientRect();
 
     const top = window.scrollY + rect.top;
-    const left = rect.left - 90;
+    const left = rect.left - 100;
 
     avatar.style.transition = "all 1.5s linear";
-
     avatar.style.top = top + "px";
     avatar.style.left = left + "px";
 
-    // CLEAR previous interval
     if (bounceInterval) clearInterval(bounceInterval);
 
     let bounce = true;
 
     bounceInterval = setInterval(() => {
-      avatar.style.transform = bounce
-        ? "translateY(-10px)"
-        : "translateY(10px)";
+      avatar.style.transform = bounce ? "translateY(-8px)" : "translateY(8px)";
       bounce = !bounce;
     }, 300);
 
-    // stop after movement
     setTimeout(() => {
       clearInterval(bounceInterval);
       avatar.style.transform = "translateY(0px)";
     }, 1500);
+  }
+
+  function scrollToElement(element) {
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
   }
 
   function getFullPageContent() {
@@ -127,10 +133,11 @@ if (window.__AI_AVATAR_RUNNING__) {
       }
     });
 
-    return content.slice(0, 5000); // limit
+    return content.slice(0, 4000);
   }
 
-  async function getFullExplanation(content, retries = 2) {
+  // ✅ FIXED AI FUNCTION
+  async function getFullExplanation(content, sectionCount, retries = 2) {
     try {
       const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
@@ -139,32 +146,28 @@ if (window.__AI_AVATAR_RUNNING__) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "openrouter/free",
+          model: "mistralai/mistral-7b-instruct",
           messages: [
             {
               role: "user",
               content: `
-Divide this webpage into ${sections.length} sections.
-Return ONLY JSON like:
+Divide this webpage into EXACTLY ${sectionCount} sections.
+Return ONLY a JSON array.
 
-["section1 explanation", "section2 explanation", ...]
+Example:
+["explanation1", "explanation2"]
 
 Content:
 ${content}
-            `,
+              `,
             },
           ],
         }),
       });
 
-      if (res.status === 429) {
-        if (retries > 0) {
-          console.warn("⏳ Rate limited. Retrying...");
-          await new Promise((r) => setTimeout(r, 2000)); // wait 2 sec
-          return getFullExplanation(content, retries - 1);
-        } else {
-          throw new Error("Rate limit exceeded");
-        }
+      if (res.status === 429 && retries > 0) {
+        await new Promise((r) => setTimeout(r, 2000));
+        return getFullExplanation(content, sectionCount, retries - 1);
       }
 
       const data = await res.json();
@@ -174,15 +177,8 @@ ${content}
       return data.choices[0].message.content;
     } catch (err) {
       console.error("AI error:", err);
-      return "Unable to generate explanation.";
+      return null;
     }
-  }
-
-  function scrollToElement(element) {
-    element.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
   }
 
   async function startTour(totalTime = 30000) {
@@ -191,7 +187,18 @@ ${content}
 
     const pageContent = getFullPageContent();
 
-    let fullExplanation = await getFullExplanation(pageContent);
+    let fullExplanation = await getFullExplanation(
+      pageContent,
+      sections.length,
+    );
+
+    let parts = [];
+
+    try {
+      parts = JSON.parse(fullExplanation);
+    } catch {
+      console.warn("⚠️ AI parse failed, fallback mode");
+    }
 
     const timePerSection = totalTime / sections.length;
 
@@ -199,20 +206,12 @@ ${content}
       const el = sections[i];
 
       scrollToElement(el);
-      await new Promise((r) => setTimeout(r, 1000));
+      await new Promise((r) => setTimeout(r, 800));
 
       moveTo(el);
       el.style.background = "yellow";
 
-      let text;
-
-      if (fullExplanation) {
-        const parts = fullExplanation.split("\n");
-        text = parts[i];
-      } else {
-        // 🔥 FALLBACK MODE (NO AI)
-        text = getSectionContent(el);
-      }
+      let text = parts[i] || getSectionContent(el);
 
       await speak(text, timePerSection);
     }
