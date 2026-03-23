@@ -299,7 +299,7 @@ Content:${content}`,
   chrome.runtime.onMessage.addListener(async (req) => {
     if (req.action === "START") {
       await createAvatar();
-      startTour(req.time || 40000);
+      startTour(req.time || 40000, req.useAI, req.lang || "en");
     }
   });
 }
