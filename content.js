@@ -125,6 +125,35 @@ if (window.__PAGEPILOT__) {
     return content.slice(0, 2000);
   }
 
+  function moveTo(element) {
+    const rect = element.getBoundingClientRect();
+
+    // Position relative to viewport (FIXED)
+    const top = rect.top + rect.height / 2 - 40; // center vertically
+    const left = rect.left - 100; // left side
+
+    avatar.style.position = "fixed"; // 🔥 IMPORTANT
+    avatar.style.transition = "all 1s ease";
+
+    avatar.style.top = Math.max(10, top) + "px";
+    avatar.style.left = Math.max(10, left) + "px";
+
+    // Bounce animation
+    if (bounceInterval) clearInterval(bounceInterval);
+
+    let bounce = true;
+
+    bounceInterval = setInterval(() => {
+      avatar.style.transform = bounce ? "translateY(-6px)" : "translateY(6px)";
+      bounce = !bounce;
+    }, 300);
+
+    setTimeout(() => {
+      clearInterval(bounceInterval);
+      avatar.style.transform = "translateY(0px)";
+    }, 1500);
+  }
+
   function scrollToElement(element) {
     element.scrollIntoView({
       behavior: "smooth",
