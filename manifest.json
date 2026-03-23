@@ -3,10 +3,13 @@
   "name": "PAGEPILOT",
   "version": "1.0",
   "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["https://openrouter.ai/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_popup": "popup.html"
   },
-  "host_permissions": ["https://openrouter.ai/*"],
   "web_accessible_resources": [
     {
       "resources": ["AIbot.json"],
