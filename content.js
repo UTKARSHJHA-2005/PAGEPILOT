@@ -50,18 +50,20 @@ if (window.__AI_AVATAR_RUNNING__) {
 
   function speak(text, maxDuration) {
     return new Promise((resolve) => {
-      speechSynthesis.cancel(); // stop previous
+      speechSynthesis.cancel();
 
       const speech = new SpeechSynthesisUtterance(text);
 
-      // adjust speed dynamically
-      speech.rate = text.length > 500 ? 1.2 : 1;
+      // dynamic speed based on time
+      const words = text.split(" ").length;
+      const estimatedTime = (words / 2.5) * 1000;
+
+      speech.rate = estimatedTime > maxDuration ? 1.5 : 1;
 
       speech.onend = resolve;
 
       speechSynthesis.speak(speech);
 
-      // force stop if exceeds time
       setTimeout(() => {
         speechSynthesis.cancel();
         resolve();
