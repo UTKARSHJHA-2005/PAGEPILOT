@@ -224,6 +224,7 @@ if (window.__PAGEPILOT__) {
 
   async function getFullExplanation(content, sectionCount, lang) {
     console.log("📤 Sending to background...");
+    const langName = getLangName(lang);
     return new Promise((resolve) => {
       chrome.runtime.sendMessage(
         {
