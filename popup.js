@@ -4,12 +4,18 @@ document.getElementById("start").onclick = async () => {
     currentWindow: true,
   });
 
-  const time = document.getElementById("time").value;
-  const useAI = document.getElementById("useAI").checked;
+  // 🔥 Inject content.js manually
+  await chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    files: ["content.js"],
+  });
 
+  // small delay to ensure script loads
+  await new Promise((r) => setTimeout(r, 200));
+
+  // send message
   chrome.tabs.sendMessage(tab.id, {
     action: "START",
-    time: Number(time) * 1000,
-    useAI: useAI,
+    time: 40000,
   });
 };
