@@ -135,43 +135,6 @@ if (window.__PAGEPILOT__) {
     return content.slice(0, 4000);
   }
 
-  async function getFullExplanation(content, sectionCount, retries = 2) {
-    try {
-      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer YOUR_API_KEY",
-          "Content-Type": "application/json",
-          "HTTP-Referer": "https://pagepilot.app",
-          "X-Title": "PagePilot",
-        },
-        body: JSON.stringify({
-          model: "openrouter/free",
-          messages: [
-            {
-              role: "user",
-              content: `Divide into EXACTLY ${sectionCount} sections. Return ONLY JSON array.\n${content}`,
-            },
-          ],
-        }),
-      });
-
-      if (!res.ok) {
-        console.error("HTTP error:", res.status);
-        throw new Error("HTTP " + res.status);
-      }
-
-      const data = await res.json();
-
-      if (!data.choices) throw new Error("No response");
-
-      return data.choices[0].message.content;
-    } catch (err) {
-      console.error("AI error:", err);
-      return null;
-    }
-  }
-
   async function startTour(totalTime = 30000, useAI = true) {
     const sections = document.querySelectorAll("h1, h2, h3");
     if (!sections.length) return;
