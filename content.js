@@ -302,7 +302,7 @@ Content:${content}`,
 
       console.log(`📢 Section ${i + 1}:`, text);
 
-      await speak(text, timePerSection(text));
+      await speak(text, lang);
     }
   }
 
