@@ -167,6 +167,39 @@ function scrollToElement(element) {
   });
 }
 
+async function startTour(totalTime = 30000) {
+  const sections = document.querySelectorAll("h1, h2, h3");
+  if (!sections.length) return;
+
+  const pageContent = getFullPageContent();
+
+  let fullExplanation = await getFullExplanation(pageContent);
+
+  const timePerSection = totalTime / sections.length;
+
+  for (let i = 0; i < sections.length; i++) {
+    const el = sections[i];
+
+    scrollToElement(el);
+    await new Promise((r) => setTimeout(r, 1000));
+
+    moveTo(el);
+    el.style.background = "yellow";
+
+    let text;
+
+    if (fullExplanation) {
+      const parts = fullExplanation.split("\n");
+      text = parts[i] || el.innerText;
+    } else {
+      // 🔥 FALLBACK MODE (NO AI)
+      text = getSectionContent(el);
+    }
+
+    await speak(text, timePerSection);
+  }
+}
+
 chrome.runtime.onMessage.addListener(async (req) => {
   if (req.action === "START") {
     await createAvatar(); // ✅ WAIT for avatar
