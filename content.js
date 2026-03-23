@@ -219,6 +219,10 @@ if (window.__PAGEPILOT__) {
       parts = [];
     }
 
+    const wordsPerMinute = 150;
+    const timePerSection = (text) =>
+      Math.max((text.split(" ").length / wordsPerMinute) * 60000, 3000);
+
     for (let i = 0; i < sections.length; i++) {
       const el = sections[i];
 
