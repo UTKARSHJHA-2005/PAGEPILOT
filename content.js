@@ -202,10 +202,11 @@ Content:${content}`,
             console.error("AI error:", response?.error);
             return resolve(null);
           }
-          const aiText = response.data?.choices?.[0]?.message?.content;
-          console.log("🧠 RAW AI RESPONSE:\n", aiText);
           try {
-            resolve(response.data.choices[0].message.content);
+            const aiText = response.text;
+            console.log("🧠 RAW AI RESPONSE:\n", aiText);
+
+            resolve(aiText);
           } catch (e) {
             console.error("Parse error:", e);
             resolve(null);
