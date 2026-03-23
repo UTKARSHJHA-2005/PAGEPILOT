@@ -59,7 +59,7 @@ async function startTour(totalTime = 30000) {
 
     // move avatar
     moveTo(el);
-
+    el.style.background = "yellow";
     const text = "This section talks about " + el.innerText;
 
     // speak + wait
