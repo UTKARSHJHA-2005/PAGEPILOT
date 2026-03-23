@@ -134,9 +134,12 @@ if (window.__AI_AVATAR_RUNNING__) {
             {
               role: "user",
               content: `
-Explain this webpage like a teacher step-by-step.
-Break it into sections clearly:
+Divide this webpage into ${sections.length} sections.
+Return ONLY JSON like:
 
+["section1 explanation", "section2 explanation", ...]
+
+Content:
 ${content}
             `,
             },
