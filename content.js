@@ -136,6 +136,7 @@ if (window.__PAGEPILOT__) {
   }
 
   async function getFullExplanation(content, sectionCount) {
+    console.log("📤 Sending to background...");
     return new Promise((resolve) => {
       chrome.runtime.sendMessage(
         {
@@ -190,8 +191,7 @@ if (window.__PAGEPILOT__) {
       moveTo(el);
       el.style.background = "yellow";
 
-      let text = parts[i] || getSectionContent(el);
-
+      let text = parts[i] ? parts[i] : getSectionContent(el);
       await speak(text, timePerSection);
     }
   }
