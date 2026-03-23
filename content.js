@@ -40,6 +40,37 @@ function speak(text, duration) {
   });
 }
 
+function moveTo(element) {
+  const rect = element.getBoundingClientRect();
+
+  const top = window.scrollY + rect.top;
+  const left = rect.left - 90;
+
+  // Start walking animation
+  avatar.style.transition = "all 1.5s linear";
+  avatar.style.transform = "translateY(0px)";
+
+  // Move
+  avatar.style.top = top + "px";
+  avatar.style.left = left + "px";
+
+  // Add bounce while moving
+  let bounce = true;
+
+  const interval = setInterval(() => {
+    avatar.style.transform = bounce
+      ? "translateY(-10px)"
+      : "translateY(10px)";
+    bounce = !bounce;
+  }, 300);
+
+  // Stop bouncing after movement
+  setTimeout(() => {
+    clearInterval(interval);
+    avatar.style.transform = "translateY(0px)";
+  }, 1500);
+}
+
 function scrollToElement(element) {
   element.scrollIntoView({
     behavior: "smooth",
