@@ -115,36 +115,6 @@ function getFullPageContent() {
   return content.slice(0, 5000); // limit
 }
 
-async function getAIExplanation(text) {
-  try {
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer ",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "openrouter/free",
-        messages: [
-          {
-            role: "user",
-            content: `Explain this in a clear, engaging way like a teacher:\n${text}`,
-          },
-        ],
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!data.choices) throw new Error("No response");
-
-    return data.choices[0].message.content;
-  } catch (err) {
-    console.error(err);
-    return "This section is about " + text; // fallback
-  }
-}
-
 function scrollToElement(element) {
   element.scrollIntoView({
     behavior: "smooth",
