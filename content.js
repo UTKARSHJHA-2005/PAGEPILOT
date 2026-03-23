@@ -218,6 +218,10 @@ if (window.__PAGEPILOT__) {
     return map[code] || "en-US";
   }
 
+  function getLangName(code) {
+    return fallbackNames[code] || "English";
+  }
+
   async function getFullExplanation(content, sectionCount, lang) {
     console.log("📤 Sending to background...");
     return new Promise((resolve) => {
