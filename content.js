@@ -193,6 +193,9 @@ Rules:
 - Keep each explanation short (10-20 lines)
 - Make it engaging
 
+IMPORTANT:
+- Explain everything in ${lang} language
+
 Divide into EXACTLY ${sectionCount} sections.
 
 Return ONLY a JSON array.
