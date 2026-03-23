@@ -5,208 +5,210 @@ if (window.__AI_AVATAR_RUNNING__) {
   console.log("⚠️ Already running");
 } else {
   window.__AI_AVATAR_RUNNING__ = true;
-}
-async function createAvatar() {
-  avatar = document.createElement("div");
+  async function createAvatar() {
+    avatar = document.createElement("div");
 
-  avatar.style.position = "fixed";
-  avatar.style.bottom = "20px";
-  avatar.style.left = "20px";
-  avatar.style.width = "80px";
-  avatar.style.height = "80px";
-  avatar.style.zIndex = "999999";
+    avatar.style.position = "fixed";
+    avatar.style.bottom = "20px";
+    avatar.style.left = "20px";
+    avatar.style.width = "80px";
+    avatar.style.height = "80px";
+    avatar.style.zIndex = "999999";
 
-  document.body.appendChild(avatar);
+    document.body.appendChild(avatar);
 
-  try {
-    if (typeof lottie === "undefined") {
-      console.error("❌ Lottie not loaded. Check manifest!");
-      return;
+    try {
+      if (typeof lottie === "undefined") {
+        console.error("❌ Lottie not loaded. Check manifest!");
+        return;
+      }
+      const url = chrome.runtime.getURL("AIbot.json");
+      console.log("Fetching:", url);
+
+      const res = await fetch(url);
+      const animationData = await res.json();
+
+      lottieInstance = lottie.loadAnimation({
+        container: avatar,
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        animationData: animationData, // ✅ IMPORTANT FIX
+      });
+    } catch (err) {
+      console.error("Lottie load failed:", err);
     }
-    const url = chrome.runtime.getURL("AIbot.json");
-    console.log("Fetching:", url);
+  }
 
-    const res = await fetch(url);
-    const animationData = await res.json();
+  function speak(text, maxDuration) {
+    return new Promise((resolve) => {
+      speechSynthesis.cancel(); // stop previous
 
-    lottieInstance = lottie.loadAnimation({
-      container: avatar,
-      renderer: "svg",
-      loop: true,
-      autoplay: true,
-      animationData: animationData, // ✅ IMPORTANT FIX
+      const speech = new SpeechSynthesisUtterance(text);
+
+      // adjust speed dynamically
+      speech.rate = text.length > 500 ? 1.2 : 1;
+
+      speech.onend = resolve;
+
+      speechSynthesis.speak(speech);
+
+      // force stop if exceeds time
+      setTimeout(() => {
+        speechSynthesis.cancel();
+        resolve();
+      }, maxDuration);
     });
-  } catch (err) {
-    console.error("Lottie load failed:", err);
   }
-}
 
-function speak(text, maxDuration) {
-  return new Promise((resolve) => {
-    speechSynthesis.cancel(); // stop previous
+  function getSectionContent(heading) {
+    let content = heading.innerText + ". ";
 
-    const speech = new SpeechSynthesisUtterance(text);
+    let next = heading.nextElementSibling;
 
-    // adjust speed dynamically
-    speech.rate = text.length > 500 ? 1.2 : 1;
+    while (next && !/^H[1-3]$/.test(next.tagName)) {
+      if (next.innerText) {
+        content += next.innerText + " ";
+      }
+      next = next.nextElementSibling;
+    }
 
-    speech.onend = resolve;
+    return content.slice(0, 3000);
+  }
 
-    speechSynthesis.speak(speech);
+  function moveTo(element) {
+    const rect = element.getBoundingClientRect();
 
-    // force stop if exceeds time
+    const top = window.scrollY + rect.top;
+    const left = rect.left - 90;
+
+    avatar.style.transition = "all 1.5s linear";
+
+    avatar.style.top = top + "px";
+    avatar.style.left = left + "px";
+
+    // CLEAR previous interval
+    if (bounceInterval) clearInterval(bounceInterval);
+
+    let bounce = true;
+
+    bounceInterval = setInterval(() => {
+      avatar.style.transform = bounce
+        ? "translateY(-10px)"
+        : "translateY(10px)";
+      bounce = !bounce;
+    }, 300);
+
+    // stop after movement
     setTimeout(() => {
-      speechSynthesis.cancel();
-      resolve();
-    }, maxDuration);
-  });
-}
-
-function getSectionContent(heading) {
-  let content = heading.innerText + ". ";
-
-  let next = heading.nextElementSibling;
-
-  while (next && !/^H[1-3]$/.test(next.tagName)) {
-    if (next.innerText) {
-      content += next.innerText + " ";
-    }
-    next = next.nextElementSibling;
+      clearInterval(bounceInterval);
+      avatar.style.transform = "translateY(0px)";
+    }, 1500);
   }
 
-  return content.slice(0, 3000);
-}
+  function getFullPageContent() {
+    const elements = document.querySelectorAll("h1, h2, h3, p");
 
-function moveTo(element) {
-  const rect = element.getBoundingClientRect();
+    let content = "";
 
-  const top = window.scrollY + rect.top;
-  const left = rect.left - 90;
+    elements.forEach((el) => {
+      if (el.innerText) {
+        content += el.innerText + "\n";
+      }
+    });
 
-  avatar.style.transition = "all 1.5s linear";
+    return content.slice(0, 5000); // limit
+  }
 
-  avatar.style.top = top + "px";
-  avatar.style.left = left + "px";
-
-  // CLEAR previous interval
-  if (bounceInterval) clearInterval(bounceInterval);
-
-  let bounce = true;
-
-  bounceInterval = setInterval(() => {
-    avatar.style.transform = bounce ? "translateY(-10px)" : "translateY(10px)";
-    bounce = !bounce;
-  }, 300);
-
-  // stop after movement
-  setTimeout(() => {
-    clearInterval(bounceInterval);
-    avatar.style.transform = "translateY(0px)";
-  }, 1500);
-}
-
-function getFullPageContent() {
-  const elements = document.querySelectorAll("h1, h2, h3, p");
-
-  let content = "";
-
-  elements.forEach((el) => {
-    if (el.innerText) {
-      content += el.innerText + "\n";
-    }
-  });
-
-  return content.slice(0, 5000); // limit
-}
-
-async function getFullExplanation(content, retries = 2) {
-  try {
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer ",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "openrouter/free",
-        messages: [
-          {
-            role: "user",
-            content: `
+  async function getFullExplanation(content, retries = 2) {
+    try {
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer ",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "openrouter/free",
+          messages: [
+            {
+              role: "user",
+              content: `
 Explain this webpage like a teacher step-by-step.
 Break it into sections clearly:
 
 ${content}
             `,
-          },
-        ],
-      }),
-    });
+            },
+          ],
+        }),
+      });
 
-    if (res.status === 429) {
-      if (retries > 0) {
-        console.warn("⏳ Rate limited. Retrying...");
-        await new Promise((r) => setTimeout(r, 2000)); // wait 2 sec
-        return getFullExplanation(content, retries - 1);
-      } else {
-        throw new Error("Rate limit exceeded");
+      if (res.status === 429) {
+        if (retries > 0) {
+          console.warn("⏳ Rate limited. Retrying...");
+          await new Promise((r) => setTimeout(r, 2000)); // wait 2 sec
+          return getFullExplanation(content, retries - 1);
+        } else {
+          throw new Error("Rate limit exceeded");
+        }
       }
+
+      const data = await res.json();
+
+      if (!data.choices) throw new Error("No response");
+
+      return data.choices[0].message.content;
+    } catch (err) {
+      console.error("AI error:", err);
+      return "Unable to generate explanation.";
     }
-
-    const data = await res.json();
-
-    if (!data.choices) throw new Error("No response");
-
-    return data.choices[0].message.content;
-  } catch (err) {
-    console.error("AI error:", err);
-    return "Unable to generate explanation.";
   }
-}
 
-function scrollToElement(element) {
-  element.scrollIntoView({
-    behavior: "smooth",
-    block: "center",
+  function scrollToElement(element) {
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }
+
+  async function startTour(totalTime = 30000) {
+    const sections = document.querySelectorAll("h1, h2, h3");
+    if (!sections.length) return;
+
+    const pageContent = getFullPageContent();
+
+    let fullExplanation = await getFullExplanation(pageContent);
+
+    const timePerSection = totalTime / sections.length;
+
+    for (let i = 0; i < sections.length; i++) {
+      const el = sections[i];
+
+      scrollToElement(el);
+      await new Promise((r) => setTimeout(r, 1000));
+
+      moveTo(el);
+      el.style.background = "yellow";
+
+      let text;
+
+      if (fullExplanation) {
+        const parts = fullExplanation.split("\n");
+        text = parts[i] || el.innerText;
+      } else {
+        // 🔥 FALLBACK MODE (NO AI)
+        text = getSectionContent(el);
+      }
+
+      await speak(text, timePerSection);
+    }
+  }
+
+  chrome.runtime.onMessage.addListener(async (req) => {
+    if (req.action === "START") {
+      await createAvatar();
+      startTour(req.time || 40000, req.useAI);
+    }
   });
 }
-
-async function startTour(totalTime = 30000) {
-  const sections = document.querySelectorAll("h1, h2, h3");
-  if (!sections.length) return;
-
-  const pageContent = getFullPageContent();
-
-  let fullExplanation = await getFullExplanation(pageContent);
-
-  const timePerSection = totalTime / sections.length;
-
-  for (let i = 0; i < sections.length; i++) {
-    const el = sections[i];
-
-    scrollToElement(el);
-    await new Promise((r) => setTimeout(r, 1000));
-
-    moveTo(el);
-    el.style.background = "yellow";
-
-    let text;
-
-    if (fullExplanation) {
-      const parts = fullExplanation.split("\n");
-      text = parts[i] || el.innerText;
-    } else {
-      // 🔥 FALLBACK MODE (NO AI)
-      text = getSectionContent(el);
-    }
-
-    await speak(text, timePerSection);
-  }
-}
-
-chrome.runtime.onMessage.addListener(async (req) => {
-  if (req.action === "START") {
-    await createAvatar();
-    startTour(req.time || 40000, req.useAI);
-  }
-});
