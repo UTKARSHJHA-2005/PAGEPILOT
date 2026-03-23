@@ -56,8 +56,16 @@ if (window.__PAGEPILOT__) {
 
       speechSynthesis.cancel();
 
-      const speech = new SpeechSynthesisUtterance(text);
+      const prefixes = [
+        "Here's the idea: ",
+        "In simple terms: ",
+        "What this means is: ",
+        "Basically: ",
+      ];
 
+      const speech = new SpeechSynthesisUtterance(
+        prefixes[Math.floor(Math.random() * prefixes.length)] + text,
+      );
       speech.rate = 1;
       speech.pitch = 1;
 
