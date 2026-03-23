@@ -231,9 +231,13 @@ if (window.__PAGEPILOT__) {
       await new Promise((r) => setTimeout(r, 800));
 
       moveTo(el);
+
       el.style.background = "yellow";
 
       let text = parts[i] ? parts[i] : getSectionContent(el);
+
+      console.log(`📢 Section ${i + 1}:`, text);
+
       await speak(text, timePerSection(text));
     }
   }
