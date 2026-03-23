@@ -202,7 +202,7 @@ async function startTour(totalTime = 30000) {
 
 chrome.runtime.onMessage.addListener(async (req) => {
   if (req.action === "START") {
-    await createAvatar(); // ✅ WAIT for avatar
-    startTour(req.time || 40000);
+    await createAvatar();
+    startTour(req.time || 40000, req.useAI);
   }
 });
