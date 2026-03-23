@@ -15,6 +15,10 @@ async function createAvatar() {
   document.body.appendChild(avatar);
 
   try {
+    if (typeof lottie === "undefined") {
+      console.error("❌ Lottie not loaded. Check manifest!");
+      return;
+    }
     const url = chrome.runtime.getURL("AIbot.json");
     console.log("Fetching:", url);
 
