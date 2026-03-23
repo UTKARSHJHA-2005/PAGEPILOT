@@ -167,30 +167,6 @@ function scrollToElement(element) {
   });
 }
 
-async function startTour(totalTime = 30000) {
-  const sections = document.querySelectorAll("h1, h2, h3");
-
-  if (!sections.length) return;
-
-  const timePerSection = totalTime / sections.length;
-
-  for (let i = 0; i < sections.length; i++) {
-    const el = sections[i];
-
-    // scroll to section
-    scrollToElement(el);
-
-    await new Promise((r) => setTimeout(r, 1000));
-
-    // move avatar
-    moveTo(el);
-    el.style.background = "yellow";
-    const sectionText = getSectionContent(el);
-    const aiText = await getFullExplanation(sectionText);
-    await speak(aiText, timePerSection);
-  }
-}
-
 chrome.runtime.onMessage.addListener(async (req) => {
   if (req.action === "START") {
     await createAvatar(); // ✅ WAIT for avatar
