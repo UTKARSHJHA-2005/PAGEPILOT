@@ -19,7 +19,7 @@ function createAvatar() {
       renderer: "svg",
       loop: true,
       autoplay: true,
-      path: chrome.runtime.getURL("AIbot.json") // your Lottie file
+      path: chrome.runtime.getURL("AIbot.json"), // your Lottie file
     });
   }, 500);
 }
@@ -67,9 +67,7 @@ function moveTo(element) {
   let bounce = true;
 
   bounceInterval = setInterval(() => {
-    avatar.style.transform = bounce
-      ? "translateY(-10px)"
-      : "translateY(10px)";
+    avatar.style.transform = bounce ? "translateY(-10px)" : "translateY(10px)";
     bounce = !bounce;
   }, 300);
 
@@ -85,18 +83,18 @@ async function getAIExplanation(text) {
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": "Bearer ",
-        "Content-Type": "application/json"
+        Authorization: "Bearer ",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         model: "openrouter/free",
         messages: [
           {
             role: "user",
-            content: `Explain this simply in 2 lines: ${text}`
-          }
-        ]
-      })
+            content: `Explain this simply in 2 lines: ${text}`,
+          },
+        ],
+      }),
     });
 
     const data = await res.json();
@@ -104,7 +102,6 @@ async function getAIExplanation(text) {
     if (!data.choices) throw new Error("No response");
 
     return data.choices[0].message.content;
-
   } catch (err) {
     console.error(err);
     return "This section is about " + text; // fallback
@@ -114,7 +111,7 @@ async function getAIExplanation(text) {
 function scrollToElement(element) {
   element.scrollIntoView({
     behavior: "smooth",
-    block: "center"
+    block: "center",
   });
 }
 
@@ -137,8 +134,7 @@ async function startTour(totalTime = 30000) {
     moveTo(el);
     el.style.background = "yellow";
     const sectionText = getSectionContent(el);
-
-const aiText = await getAIExplanation(sectionText);
+    const aiText = await getAIExplanation(sectionText);
     await speak(aiText, timePerSection);
   }
 }
