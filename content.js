@@ -37,6 +37,27 @@ async function createAvatar() {
   }
 }
 
+function speak(text, maxDuration) {
+  return new Promise((resolve) => {
+    speechSynthesis.cancel(); // stop previous
+
+    const speech = new SpeechSynthesisUtterance(text);
+
+    // adjust speed dynamically
+    speech.rate = text.length > 500 ? 1.2 : 1;
+
+    speech.onend = resolve;
+
+    speechSynthesis.speak(speech);
+
+    // force stop if exceeds time
+    setTimeout(() => {
+      speechSynthesis.cancel();
+      resolve();
+    }, maxDuration);
+  });
+}
+
 function getSectionContent(heading) {
   let content = heading.innerText + ". ";
 
