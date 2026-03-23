@@ -252,7 +252,11 @@ Content:${content}`,
     let fullExplanation = null;
 
     if (useAI) {
-      fullExplanation = await getFullExplanation(pageContent, sections.length);
+      fullExplanation = await getFullExplanation(
+        pageContent,
+        sections.length,
+        lang,
+      );
     }
 
     let parts = cleanAIResponse(fullExplanation);
