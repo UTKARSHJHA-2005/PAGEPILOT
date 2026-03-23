@@ -233,7 +233,7 @@ if (window.__PAGEPILOT__) {
       el.style.background = "yellow";
 
       let text = parts[i] ? parts[i] : getSectionContent(el);
-      await speak(text, timePerSection);
+      await speak(text, timePerSection(text));
     }
   }
 
