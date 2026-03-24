@@ -447,19 +447,12 @@ ${content}`,
 
       let text = null;
 
-      // ⏳ wait up to 2 sec for AI
-      let waited = 0;
-
-      while (!aiReady && waited < 2000) {
+      // ⏳ WAIT until AI ready (no fallback)
+      while (!aiReady) {
         await new Promise((r) => setTimeout(r, 200));
-        waited += 200;
       }
 
-      // 🎯 now decide
-      if (aiReady && parts[i]) {
-        console.log("🤖 Using AI");
-        text = parts[i];
-      }
+      text = parts[i];
       if (typeof text === "object" && text !== null) {
         text = Object.values(text)[0];
       }
