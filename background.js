@@ -19,9 +19,21 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
       }),
     })
       .then(async (res) => {
-        const data = await res.json();
+        const text = await res.text(); // 🔥 ALWAYS safe
 
-        console.log("🧠 RAW API RESPONSE:", data); // 👈 IMPORTANT
+        let data;
+
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          console.error("❌ Invalid JSON from API:", text);
+          return sendResponse({
+            success: false,
+            error: "Invalid JSON response",
+          });
+        }
+
+        console.log("🧠 RAW API RESPONSE:", data);
 
         if (!res.ok) {
           return sendResponse({
@@ -30,7 +42,7 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
           });
         }
 
-        if (!data.choices) {
+        if (!data.choices || !data.choices.length) {
           return sendResponse({
             success: false,
             error: "No choices in response",
@@ -39,7 +51,7 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
 
         sendResponse({
           success: true,
-          text: data.choices[0].message.content, // 👈 send CLEAN text
+          text: data.choices[0].message.content,
         });
       })
       .catch((err) => {
