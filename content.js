@@ -305,10 +305,6 @@ Content:${content}`,
       parts = [];
     }
 
-    if (!Array.isArray(parts)) {
-      parts = [];
-    }
-
     const wordsPerMinute = 150;
     const timePerSection = (text) =>
       Math.max((text.split(" ").length / wordsPerMinute) * 60000, 3000);
