@@ -391,7 +391,6 @@ ${content}`,
       // let text = parts[i] ? parts[i] : getSectionContent(el);
       let text = null;
 
-      // 🎯 if AI ready → use AI
       if (aiReady && parts[i]) {
         text = parts[i];
       } else {
