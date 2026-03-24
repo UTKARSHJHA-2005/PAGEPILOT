@@ -274,20 +274,12 @@ ${content}`,
     if (!text) return null;
 
     try {
+      // remove code blocks if any
       text = text.replace(/```json|```/g, "").trim();
 
-      // ✅ safer extraction
-      const start = text.indexOf("[");
-      const end = text.lastIndexOf("]");
-
-      if (start !== -1 && end !== -1) {
-        const jsonString = text.slice(start, end + 1);
-        return JSON.parse(jsonString);
-      }
-
-      return null;
+      return JSON.parse(text);
     } catch (e) {
-      console.warn("⚠️ Clean parse failed:", e);
+      console.warn("⚠️ JSON parse failed:", text);
       return null;
     }
   }
