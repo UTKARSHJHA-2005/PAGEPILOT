@@ -40,19 +40,24 @@ if (window.__PAGEPILOT__) {
     ja: "Japanese",
   };
 
-  // ─── Load jsPDF dynamically ───────────────────────────────────────────────
+  // ─── Load jsPDF ───────────────────────────────────────────────────────────
   function loadJsPDF() {
     return new Promise((resolve) => {
-      if (window.jspdf) return resolve(window.jspdf.jsPDF);
-      const script = document.createElement("script");
-      script.src =
-        "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
-      script.onload = () => resolve(window.jspdf.jsPDF);
-      script.onerror = () => {
-        console.error("jsPDF failed to load");
-        resolve(null);
-      };
-      document.head.appendChild(script);
+      if (window.jspdf && window.jspdf.jsPDF) {
+        return resolve(window.jspdf.jsPDF);
+      }
+      // Fallback: poll briefly in case script hasn't initialized yet
+      let attempts = 0;
+      const interval = setInterval(() => {
+        if (window.jspdf && window.jspdf.jsPDF) {
+          clearInterval(interval);
+          resolve(window.jspdf.jsPDF);
+        } else if (++attempts > 20) {
+          clearInterval(interval);
+          console.error("jsPDF failed to load");
+          resolve(null);
+        }
+      }, 100);
     });
   }
 
