@@ -51,6 +51,20 @@ if (window.__PAGEPILOT__) {
     avatar.style.zIndex = "999999";
 
     document.body.appendChild(avatar);
+    const inputBox = document.createElement("div");
+
+    inputBox.style.position = "fixed";
+    inputBox.style.bottom = "20px";
+    inputBox.style.right = "20px";
+    inputBox.style.zIndex = "999999";
+
+    inputBox.innerHTML = `
+  <input id="aiQuestion" placeholder="Ask something..."
+    style="padding:8px;width:200px;border-radius:8px;border:1px solid #ccc;" />
+  <button id="askAI">Ask</button>
+`;
+
+    document.body.appendChild(inputBox);
 
     try {
       const url = chrome.runtime.getURL("AIbot.json");
