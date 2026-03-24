@@ -81,6 +81,44 @@ if (window.__PAGEPILOT__) {
     return false;
   }
 
+  // function speak(text, lang) {
+  //   return new Promise((resolve) => {
+  //     if (!text) return resolve();
+
+  //     speechSynthesis.cancel();
+
+  //     const prefixes = [
+  //       "Here's the idea: ",
+  //       "In simple terms: ",
+  //       "What this means is: ",
+  //       "Basically: ",
+  //     ];
+
+  //     const speech = new SpeechSynthesisUtterance(
+  //       prefixes[Math.floor(Math.random() * prefixes.length)] + text,
+  //     );
+  //     speech.lang = lang;
+
+  //     // 🔥 pick best voice
+  //     const voices = speechSynthesis.getVoices();
+  //     const voice = voices.find((v) => v.lang === lang);
+
+  //     if (voice) {
+  //       speech.voice = voice;
+  //     } else {
+  //       console.warn("⚠️ Voice not found for", lang);
+  //     }
+
+  //     speech.rate = 0.95;
+  //     speech.pitch = 1;
+
+  //     speech.onend = resolve;
+  //     speech.onerror = resolve;
+
+  //     speechSynthesis.speak(speech);
+  //   });
+  // }
+
   async function speak(text, lang) {
     if (!text) return;
 
