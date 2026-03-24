@@ -20,10 +20,9 @@ document.getElementById("start").onclick = async () => {
   } catch (err) {
     console.log("⚠️ Content script not ready, injecting...");
 
-    // ✅ Inject BOTH scripts (important for Lottie)
     await chrome.scripting.executeScript({
       target: { tabId: tab.id },
-      files: ["lottie.min.js", "content.js"],
+      files: ["lottie.min.js", "jspdf.umd.min.js", "content.js"],
     });
 
     // wait for script to initialize
