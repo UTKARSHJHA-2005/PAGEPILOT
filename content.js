@@ -338,20 +338,19 @@ Answer in ${langName}, simple and short.`,
       zh: "zh-CN",
       ja: "ja-JP",
     };
-
     return map[code] || "en-US";
   }
 
   function loadVoices() {
     return new Promise((resolve) => {
       let voices = speechSynthesis.getVoices();
-
       if (voices.length) return resolve(voices);
-
       speechSynthesis.onvoiceschanged = () => {
         voices = speechSynthesis.getVoices();
         resolve(voices);
       };
+      // ✅ Safety timeout — don't hang forever if event never fires
+      setTimeout(() => resolve(speechSynthesis.getVoices()), 2000);
     });
   }
 
