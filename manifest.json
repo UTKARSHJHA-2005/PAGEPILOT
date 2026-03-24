@@ -12,7 +12,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["AIbot.json"],
+      "resources": ["AIbot.json", "NotoSans-Regular.ttf"],
       "matches": ["<all_urls>"]
     }
   ],
