@@ -389,11 +389,14 @@ ${content}`,
       el.style.background = "yellow";
 
       // let text = parts[i] ? parts[i] : getSectionContent(el);
-      let text = parts[i];
+      let text = null;
 
-      // if (lang !== "en") {
-      //   text = await translate(text, lang);
-      // }
+      // 🎯 if AI ready → use AI
+      if (aiReady && parts[i]) {
+        text = parts[i];
+      } else {
+        text = getSectionContent(el); // instant fallback
+      }
       if (typeof text === "object" && text !== null) {
         text = Object.values(text)[0];
       }
