@@ -237,9 +237,9 @@ Divide into EXACTLY ${sectionCount} sections.
 
 Return ONLY a raw JSON array of strings.
 Do NOT use markdown.
-Do NOT wrap in ``json
 
-Content:${content}`,
+Content:
+${content}`,
         },
         (response) => {
           if (!response || !response.success) {
