@@ -221,6 +221,21 @@ Answer in ${langName}, simple and short.`,
     });
   }
 
+  function getSectionContent(heading) {
+    let content = heading.innerText + ". ";
+
+    let next = heading.nextElementSibling;
+
+    while (next && !/^H[1-3]$/.test(next.tagName)) {
+      if (next.innerText) {
+        content += next.innerText + " ";
+      }
+      next = next.nextElementSibling;
+    }
+
+    return content.slice(0, 2000);
+  }
+
   function moveTo(element) {
     const rect = element.getBoundingClientRect();
 
@@ -333,6 +348,14 @@ STRICT RULES:
 Divide into EXACTLY ${sectionCount} parts.
 
 Return ONLY a JSON array of strings. Do not wrap the response in code blocks or markdown.
+Example:
+["text1","text2","text3"]
+
+STRICT:
+- Do NOT miss closing brackets
+- Do NOT add explanation
+- Do NOT add markdown
+- Output must be directly parsable by JSON.parse()
 
 Content:
 ${content}`,
@@ -386,20 +409,17 @@ ${content}`,
 
     const pageContent = getFullPageContent();
 
-    let parts = [];
-    let aiReady = false;
+    let fullExplanation = null;
 
-    // ⚡ start AI in background (no await)
     if (useAI) {
-      getFullExplanation(pageContent, sections.length, lang).then((res) => {
-        const parsed = cleanAIResponse(res);
-        if (Array.isArray(parsed)) {
-          parts = parsed;
-          aiReady = true;
-          console.log("⚡ AI ready");
-        }
-      });
+      fullExplanation = await getFullExplanation(
+        pageContent,
+        sections.length,
+        lang,
+      );
     }
+
+    let parts = cleanAIResponse(fullExplanation);
 
     if (!Array.isArray(parts)) {
       console.warn("⚠️ AI failed → fallback mode");
