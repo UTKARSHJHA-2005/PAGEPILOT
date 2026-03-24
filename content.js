@@ -354,17 +354,20 @@ ${content}`,
 
     const pageContent = getFullPageContent();
 
-    let fullExplanation = null;
+    let parts = [];
+    let aiReady = false;
 
+    // ⚡ start AI in background (no await)
     if (useAI) {
-      fullExplanation = await getFullExplanation(
-        pageContent,
-        sections.length,
-        lang,
-      );
+      getFullExplanation(pageContent, sections.length, lang).then((res) => {
+        const parsed = cleanAIResponse(res);
+        if (Array.isArray(parsed)) {
+          parts = parsed;
+          aiReady = true;
+          console.log("⚡ AI ready");
+        }
+      });
     }
-
-    let parts = cleanAIResponse(fullExplanation);
 
     if (!Array.isArray(parts)) {
       console.warn("⚠️ AI failed → fallback mode");
