@@ -419,3 +419,38 @@ ${content}`,
     }
   });
 }
+
+document.getElementById("askAI").onclick = async () => {
+  const q = document.getElementById("aiQuestion").value;
+  if (!q) return;
+
+  console.log("🧑 User asked:", q);
+
+  const langName = getLangName("en"); // or dynamic
+
+  const res = await new Promise((resolve) => {
+    chrome.runtime.sendMessage(
+      {
+        action: "GET_AI",
+        prompt: `Answer in ${langName} in simple words:\n${q}`,
+      },
+      resolve,
+    );
+  });
+
+  if (!res || !res.success) {
+    console.error("❌ AI failed");
+    return;
+  }
+
+  let answer = res.text;
+
+  // clean if needed
+  answer = answer.replace(/```json|```/g, "").trim();
+
+  console.log("AI Answer:", answer);
+
+  // 🔊 speak answer
+  const code = getLangCode("en"); // or selected lang
+  await speak(answer, code);
+};
