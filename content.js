@@ -207,6 +207,22 @@ if (window.__PAGEPILOT__) {
     return map[code] || "en-US";
   }
 
+  async function translate(text, targetLang) {
+    const res = await fetch("https://libretranslate.de/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        q: text,
+        source: "en",
+        target: targetLang,
+        format: "text",
+      }),
+    });
+
+    const data = await res.json();
+    return data.translatedText;
+  }
+
   function getLangName(code) {
     return fallbackNames[code] || "English";
   }
@@ -232,8 +248,7 @@ STRICT RULES:
 
 Divide into EXACTLY ${sectionCount} parts.
 
-Return ONLY a JSON array of strings. Do not wrap the response in anything(like````json).
-No markdown. No code blocks.
+Return ONLY a JSON array of strings. Do not wrap the response in code blocks or markdown.
 
 Content:
 ${content}`,
@@ -246,13 +261,7 @@ ${content}`,
           try {
             let aiText = null;
 
-            if (
-              response &&
-              response.success &&
-              response.data &&
-              response.data.choices &&
-              response.data.choices.length > 0
-            ) {
+            if (response && response.success && response.text) {
               aiText = response.text;
             } else {
               console.error("❌ Invalid AI response:", response);
@@ -276,7 +285,11 @@ ${content}`,
     try {
       text = text.replace(/```json|```/g, "").trim();
 
-      return JSON.parse(text);
+      const parsed = JSON.parse(text);
+
+      if (Array.isArray(parsed)) return parsed;
+
+      return null;
     } catch (e) {
       console.warn("⚠️ JSON parse failed:", text);
       return null;
@@ -323,7 +336,9 @@ ${content}`,
       // let text = parts[i] ? parts[i] : getSectionContent(el);
       let text = parts[i];
 
-      // 🔥 FIX: convert object → string
+      if (lang !== "en") {
+        text = await translate(text, lang);
+      }
       if (typeof text === "object" && text !== null) {
         text = Object.values(text)[0];
       }
