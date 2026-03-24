@@ -65,6 +65,45 @@ if (window.__PAGEPILOT__) {
 `;
 
     document.body.appendChild(inputBox);
+    const askBtn = document.getElementById("askAI");
+
+    if (askBtn) {
+      askBtn.onclick = async () => {
+        const input = document.getElementById("aiQuestion");
+        const q = input?.value;
+
+        if (!q) return;
+
+        console.log("🧑 User asked:", q);
+
+        const langName = getLangName("en");
+
+        const res = await new Promise((resolve) => {
+          chrome.runtime.sendMessage(
+            {
+              action: "GET_AI",
+              prompt: `Answer in ${langName} in simple words:\n${q}`,
+            },
+            resolve,
+          );
+        });
+
+        if (!res || !res.success) {
+          console.error("❌ AI failed");
+          return;
+        }
+
+        let answer = res.text;
+        answer = answer.replace(/```json|```/g, "").trim();
+
+        console.log("AI Answer:", answer);
+
+        const code = getLangCode("en");
+        await speak(answer, code);
+      };
+    } else {
+      console.error("❌ askAI button not found");
+    }
 
     try {
       const url = chrome.runtime.getURL("AIbot.json");
