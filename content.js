@@ -392,6 +392,11 @@ ${content}`,
     try {
       text = text.replace(/```json|```/g, "").trim();
 
+      // 🔥 FIX: auto-close array if missing
+      if (!text.endsWith("]")) {
+        text += "]";
+      }
+
       const parsed = JSON.parse(text);
 
       if (Array.isArray(parsed)) return parsed;
