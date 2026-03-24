@@ -469,31 +469,24 @@ ${content}`,
       const el = sections[i];
 
       scrollToElement(el);
-      await new Promise((r) => setTimeout(r, 800));
+      await new Promise((r) => setTimeout(r, 600));
 
       moveTo(el);
-
       el.style.background = "yellow";
 
+      const sectionText = getSectionContent(el);
+
       let text = null;
-      let aiReady = false;
 
-      // ⏳ WAIT until AI ready (no fallback)
-      while (!aiReady) {
-        await new Promise((r) => setTimeout(r, 200));
+      if (useAI) {
+        // ⚡ fetch AI for THIS section only
+        text = await getAIForSection(sectionText, lang);
       }
 
-      text = parts[i];
-      if (typeof text === "object" && text !== null) {
-        text = Object.values(text)[0];
-      }
-      console.log("🔍 TEXT TYPE:", typeof text, text);
-      if (typeof text !== "string") {
-        console.warn("⚠️ Invalid AI text → fallback");
-      }
-
-      if (!text || isBadAI(text, pageContent)) {
-        console.warn("⚠️ Using fallback (AI weak)");
+      // fallback ONLY if AI fails
+      if (!text || typeof text !== "string") {
+        console.warn("⚠️ AI failed → fallback");
+        text = sectionText;
       }
 
       console.log(`📢 Section ${i + 1}:`, text);
