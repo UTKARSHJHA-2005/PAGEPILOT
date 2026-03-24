@@ -58,18 +58,18 @@ const fallbackNames = {
 
 async function loadLanguages() {
   try {
-    const res = await fetch("https://libretranslate.de/languages");
+    // const res = await fetch("https://libretranslate.de/languages");
 
-    if (!res.ok) throw new Error("API failed");
+    // if (!res.ok) throw new Error("API failed");
 
-    const text = await res.text();
+    // const text = await res.text();
 
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      throw new Error("Invalid JSON (probably HTML response)");
-    }
+    // let data;
+    // try {
+    //   data = JSON.parse(text);
+    // } catch (e) {
+    //   throw new Error("Invalid JSON (probably HTML response)");
+    // }
 
     const select = document.getElementById("lang");
     select.innerHTML = "";
