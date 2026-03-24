@@ -221,21 +221,6 @@ Answer in ${langName}, simple and short.`,
     });
   }
 
-  function getSectionContent(heading) {
-    let content = heading.innerText + ". ";
-
-    let next = heading.nextElementSibling;
-
-    while (next && !/^H[1-3]$/.test(next.tagName)) {
-      if (next.innerText) {
-        content += next.innerText + " ";
-      }
-      next = next.nextElementSibling;
-    }
-
-    return content.slice(0, 2000);
-  }
-
   function moveTo(element) {
     const rect = element.getBoundingClientRect();
 
@@ -435,13 +420,20 @@ ${content}`,
 
       el.style.background = "yellow";
 
-      // let text = parts[i] ? parts[i] : getSectionContent(el);
       let text = null;
 
+      // ⏳ wait up to 2 sec for AI
+      let waited = 0;
+
+      while (!aiReady && waited < 2000) {
+        await new Promise((r) => setTimeout(r, 200));
+        waited += 200;
+      }
+
+      // 🎯 now decide
       if (aiReady && parts[i]) {
+        console.log("🤖 Using AI");
         text = parts[i];
-      } else {
-        text = getSectionContent(el); // instant fallback
       }
       if (typeof text === "object" && text !== null) {
         text = Object.values(text)[0];
@@ -449,12 +441,10 @@ ${content}`,
       console.log("🔍 TEXT TYPE:", typeof text, text);
       if (typeof text !== "string") {
         console.warn("⚠️ Invalid AI text → fallback");
-        text = getSectionContent(el);
       }
 
       if (!text || isBadAI(text, pageContent)) {
         console.warn("⚠️ Using fallback (AI weak)");
-        text = getSectionContent(el);
       }
 
       console.log(`📢 Section ${i + 1}:`, text);
