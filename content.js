@@ -97,6 +97,25 @@ if (window.__PAGEPILOT__) {
       const speech = new SpeechSynthesisUtterance(
         prefixes[Math.floor(Math.random() * prefixes.length)] + text,
       );
+      speech.lang = lang;
+
+      // 🔥 pick best voice
+      const voices = speechSynthesis.getVoices();
+      const voice = voices.find((v) => v.lang === lang);
+
+      if (voice) {
+        speech.voice = voice;
+      } else {
+        console.warn("⚠️ Voice not found for", lang);
+      }
+
+      speech.rate = 0.95;
+      speech.pitch = 1;
+
+      speech.onend = resolve;
+      speech.onerror = resolve;
+
+      speechSynthesis.speak(speech);
     });
   }
 
