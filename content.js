@@ -386,24 +386,46 @@ ${content}`,
     });
   }
 
-  function cleanAIResponse(text) {
+  function cleanAIResponse(text, expectedCount) {
     if (!text) return null;
 
     try {
+      // Strip markdown fences
       text = text.replace(/```json|```/g, "").trim();
 
-      // 🔥 FIX: auto-close array if missing
+      // Extract only the JSON array portion (ignore any text before/after)
+      const arrayMatch = text.match(/\[[\s\S]*\]/);
+      if (arrayMatch) {
+        text = arrayMatch[0];
+      }
+
+      // Auto-close truncated array
       if (!text.endsWith("]")) {
+        // Close any open string
+        if ((text.match(/"/g) || []).length % 2 !== 0) {
+          text += '"';
+        }
         text += "]";
       }
 
       const parsed = JSON.parse(text);
-
-      if (Array.isArray(parsed)) return parsed;
-
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        console.log(`✅ Parsed ${parsed.length} AI parts`);
+        return parsed;
+      }
       return null;
     } catch (e) {
-      console.warn("⚠️ JSON parse failed:", text);
+      console.warn("⚠️ JSON parse failed, attempting line-by-line recovery...");
+
+      // Last resort: extract quoted strings manually
+      const matches = text.match(/"([^"\\]*(\\.[^"\\]*)*)"/g);
+      if (matches && matches.length > 0) {
+        const recovered = matches.map((m) => m.slice(1, -1));
+        console.log(`🔧 Recovered ${recovered.length} parts from broken JSON`);
+        return recovered;
+      }
+
+      console.error("❌ Could not recover JSON");
       return null;
     }
   }
