@@ -3,10 +3,7 @@
   "name": "PAGEPILOT",
   "version": "1.0",
   "permissions": ["activeTab", "scripting"],
-  "host_permissions": [
-    "https://openrouter.ai/*",
-    "https://cdnjs.cloudflare.com/*"
-  ],
+  "host_permissions": ["https://openrouter.ai/*"],
   "background": {
     "service_worker": "background.js"
   },
