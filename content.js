@@ -408,92 +408,67 @@ ${content}`,
     }
   }
 
-  async function getAIForSection(content, lang) {
-    const langName = getLangName(lang);
-
-    return new Promise((resolve) => {
-      chrome.runtime.sendMessage(
-        {
-          action: "GET_AI",
-          prompt: `Explain this in very simple ${langName}.
-
-Rules:
-- Only ${langName}
-- Short and clear
-- No extra text
-
-Text:
-${content}`,
-        },
-        (res) => {
-          if (!res?.success) return resolve(null);
-
-          let text = res.text || "";
-
-          text = text.replace(/```json|```/g, "").trim();
-
-          resolve(text);
-        },
-      );
-    });
-  }
-
   async function startTour(totalTime = 30000, useAI = true, lang = "en") {
     const sections = document.querySelectorAll("h1, h2, h3");
-    if (!sections.length) return;
+    if (!sections.length) {
+      console.warn("⚠️ No headings found on this page");
+      return;
+    }
 
     const pageContent = getFullPageContent();
+    // ✅ Cap to match what we send to AI
+    const cappedCount = Math.min(sections.length, 6);
 
-    let fullExplanation = null;
+    let parts = null;
 
     if (useAI) {
-      fullExplanation = await getFullExplanation(
+      const fullExplanation = await getFullExplanation(
         pageContent,
-        sections.length,
+        cappedCount,
         lang,
       );
+      parts = cleanAIResponse(fullExplanation, cappedCount);
     }
 
-    let parts = cleanAIResponse(fullExplanation);
-
-    if (!Array.isArray(parts)) {
-      console.warn("⚠️ AI failed → fallback mode");
-      parts = [];
+    if (!Array.isArray(parts) || parts.length === 0) {
+      console.warn("⚠️ AI failed → using section headings as fallback");
+      // ✅ Graceful fallback: read heading text directly
+      parts = Array.from(sections)
+        .slice(0, cappedCount)
+        .map((el) => `This section is about: ${el.innerText.trim()}`);
     }
 
-    const wordsPerMinute = 150;
-    const timePerSection = (text) =>
-      Math.max((text.split(" ").length / wordsPerMinute) * 60000, 3000);
+    const langCode = getLangCode(lang);
 
-    for (let i = 0; i < sections.length; i++) {
+    for (let i = 0; i < cappedCount; i++) {
       const el = sections[i];
 
       scrollToElement(el);
-      await new Promise((r) => setTimeout(r, 600));
-
+      await new Promise((r) => setTimeout(r, 800));
       moveTo(el);
+
       el.style.background = "yellow";
 
-      const sectionText = getSectionContent(el);
+      // ✅ FIX: Removed the infinite `while (!aiReady)` loop — it was the main bug
+      let text = parts[i];
 
-      let text = null;
-
-      if (useAI) {
-        // ⚡ fetch AI for THIS section only
-        text = await getAIForSection(sectionText, lang);
-      }
-
-      // fallback ONLY if AI fails
-      if (!text || typeof text !== "string") {
-        console.warn("⚠️ AI failed → fallback");
-        text = sectionText;
+      // Handle object values (rare edge case)
+      if (typeof text === "object" && text !== null) {
+        text = Object.values(text)[0];
       }
 
       console.log(`📢 Section ${i + 1}:`, text);
 
-      const code = getLangCode(lang);
-      await speak(text, code);
+      // ✅ FIX: isBadAI no longer compares with original — just checks validity
+      if (isBadAI(text)) {
+        console.warn("⚠️ Skipping invalid text for section", i + 1);
+        continue;
+      }
+
+      await speak(text, langCode);
     }
+
+    console.log("✅ Tour complete!");
   }
 
   chrome.runtime.onMessage.addListener(async (req) => {
