@@ -235,7 +235,9 @@ IMPORTANT:
 
 Divide into EXACTLY ${sectionCount} sections.
 
-Return ONLY a JSON array of strings.
+Return ONLY a raw JSON array of strings.
+Do NOT use markdown.
+Do NOT wrap in ``json
 
 Content:${content}`,
         },
