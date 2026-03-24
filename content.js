@@ -207,6 +207,19 @@ if (window.__PAGEPILOT__) {
     return map[code] || "en-US";
   }
 
+  function loadVoices() {
+    return new Promise((resolve) => {
+      let voices = speechSynthesis.getVoices();
+
+      if (voices.length) return resolve(voices);
+
+      speechSynthesis.onvoiceschanged = () => {
+        voices = speechSynthesis.getVoices();
+        resolve(voices);
+      };
+    });
+  }
+
   function getLangName(code) {
     return fallbackNames[code] || "English";
   }
