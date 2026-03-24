@@ -432,7 +432,15 @@ document.getElementById("askAI").onclick = async () => {
     chrome.runtime.sendMessage(
       {
         action: "GET_AI",
-        prompt: `Answer in ${langName} in simple words:\n${q}`,
+        prompt: `You are an AI assistant.
+
+Context:
+${getFullPageContent().slice(0, 2000)}
+
+User question:
+${q}
+
+Answer in ${langName}, simple and short.`,
       },
       resolve,
     );
