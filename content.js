@@ -38,23 +38,6 @@ if (window.__PAGEPILOT__) {
     ja: "Japanese",
   };
 
-  function getLangCode(name) {
-    const map = {
-      English: "en-US",
-      Hindi: "hi-IN",
-      Tamil: "ta-IN",
-      Telugu: "te-IN",
-      Bengali: "bn-IN",
-      Marathi: "mr-IN",
-      Gujarati: "gu-IN",
-      French: "fr-FR",
-      Spanish: "es-ES",
-      German: "de-DE",
-    };
-
-    return map[name] || "en-US";
-  }
-
   async function createAvatar() {
     await waitForLottie();
 
