@@ -218,25 +218,22 @@ if (window.__PAGEPILOT__) {
       chrome.runtime.sendMessage(
         {
           action: "GET_AI",
-          prompt: `You are an AI tutor.
+          prompt: `You are a professional teacher.
 
-Explain the following webpage in SIMPLE, HUMAN, BEGINNER-FRIENDLY language.
+Explain the following webpage in VERY SIMPLE terms.
 
-Rules:
-- Do NOT copy the content
-- Do NOT repeat sentences
-- EXPLAIN like a teacher
-- Use simple words
-- Keep each explanation short (10-20 lines)
-- Make it engaging
+STRICT RULES:
+- Use ONLY ${langName} language
+- DO NOT mix any other language
+- DO NOT include English words unless necessary
+- DO NOT copy the original text
+- Explain like teaching a beginner
+- Keep sentences short and clear
 
-IMPORTANT:
-- Explain everything in ${langName} language
+Divide into EXACTLY ${sectionCount} parts.
 
-Divide into EXACTLY ${sectionCount} sections.
-
-Return ONLY a raw JSON array of strings.
-Do NOT use markdown.
+Return ONLY a JSON array of strings.
+No markdown. No code blocks.
 
 Content:
 ${content}`,
@@ -247,7 +244,20 @@ ${content}`,
             return resolve(null);
           }
           try {
-            const aiText = response.data.choices[0].message.content;
+            let aiText = null;
+
+            if (
+              response &&
+              response.success &&
+              response.data &&
+              response.data.choices &&
+              response.data.choices.length > 0
+            ) {
+              aiText = response.text;
+            } else {
+              console.error("❌ Invalid AI response:", response);
+              return resolve(null);
+            }
             console.log("🧠 RAW AI RESPONSE:\n", aiText);
 
             resolve(aiText);
