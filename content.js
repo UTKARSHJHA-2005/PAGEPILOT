@@ -408,6 +408,36 @@ ${content}`,
     }
   }
 
+  async function getAIForSection(content, lang) {
+    const langName = getLangName(lang);
+
+    return new Promise((resolve) => {
+      chrome.runtime.sendMessage(
+        {
+          action: "GET_AI",
+          prompt: `Explain this in very simple ${langName}.
+
+Rules:
+- Only ${langName}
+- Short and clear
+- No extra text
+
+Text:
+${content}`,
+        },
+        (res) => {
+          if (!res?.success) return resolve(null);
+
+          let text = res.text || "";
+
+          text = text.replace(/```json|```/g, "").trim();
+
+          resolve(text);
+        },
+      );
+    });
+  }
+
   async function startTour(totalTime = 30000, useAI = true, lang = "en") {
     const sections = document.querySelectorAll("h1, h2, h3");
     if (!sections.length) return;
@@ -446,6 +476,7 @@ ${content}`,
       el.style.background = "yellow";
 
       let text = null;
+      let aiReady = false;
 
       // ⏳ WAIT until AI ready (no fallback)
       while (!aiReady) {
