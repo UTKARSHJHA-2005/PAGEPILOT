@@ -232,7 +232,7 @@ STRICT RULES:
 
 Divide into EXACTLY ${sectionCount} parts.
 
-Return ONLY a JSON array of strings.
+Return ONLY a JSON array of strings. Do not wrap the response in anything(like````json).
 No markdown. No code blocks.
 
 Content:
@@ -274,7 +274,6 @@ ${content}`,
     if (!text) return null;
 
     try {
-      // remove code blocks if any
       text = text.replace(/```json|```/g, "").trim();
 
       return JSON.parse(text);
