@@ -130,16 +130,49 @@ Answer in ${langName}, simple and short.`,
     }
   }
 
-  function isBadAI(text, original) {
+  function isBadAI(text) {
     if (!text || typeof text !== "string") return true;
-
-    const similarity = text.length / original.length;
-
-    if (similarity > 0.8) return true;
-
-    if (original.includes(text.slice(0, 50))) return true;
-
+    if (text.trim().length < 5) return true;
     return false;
+  }
+
+  async function speak(text, lang) {
+    if (!text) return;
+    speechSynthesis.cancel();
+
+    const voices = await loadVoices();
+
+    let voice =
+      voices.find((v) => v.lang === lang) ||
+      voices.find((v) => v.lang.startsWith(lang.split("-")[0]));
+
+    if (!voice) {
+      voice = voices.find((v) =>
+        ["hi", "ta", "te", "bn", "mr", "gu", "kn", "ml"].some((l) =>
+          v.lang.startsWith(l),
+        ),
+      );
+    }
+    const speech = new SpeechSynthesisUtterance(text);
+    if (voice) {
+      speech.voice = voice;
+      console.log("🎤 Using voice:", voice.name, voice.lang);
+    } else {
+      console.warn("⚠️ No matching voice found, using default");
+    }
+
+    speech.lang = lang;
+    speech.rate = 0.9;
+    speech.pitch = 1;
+
+    return new Promise((resolve) => {
+      speech.onend = resolve;
+      speech.onerror = (e) => {
+        console.warn("⚠️ Speech error:", e);
+        resolve();
+      };
+      speechSynthesis.speak(speech);
+    });
   }
 
   // function speak(text, lang) {
