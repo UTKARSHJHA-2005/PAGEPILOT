@@ -102,7 +102,6 @@ if (window.__PAGEPILOT__) {
     const hasUnicodeFont = await loadUnicodeFont(doc);
     const bodyFont = hasUnicodeFont ? "NotoSans" : "helvetica";
 
-    // Title (latin only — safe with helvetica)
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
     doc.setTextColor(60, 60, 180);
@@ -391,7 +390,7 @@ Instructions:
       return btn;
     };
 
-    const downloadBtn = mkBtn("📄", "Download PDF");
+    // const downloadBtn = mkBtn("📄", "Download PDF");
     const chatBtn = mkBtn("💬", "Ask & Speak");
     menu.appendChild(downloadBtn);
     menu.appendChild(chatBtn);
