@@ -207,21 +207,21 @@ if (window.__PAGEPILOT__) {
     return map[code] || "en-US";
   }
 
-  async function translate(text, targetLang) {
-    const res = await fetch("https://libretranslate.de/translate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        q: text,
-        source: "en",
-        target: targetLang,
-        format: "text",
-      }),
-    });
+  // async function translate(text, targetLang) {
+  //   const res = await fetch("https://libretranslate.de/translate", {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({
+  //       q: text,
+  //       source: "en",
+  //       target: targetLang,
+  //       format: "text",
+  //     }),
+  //   });
 
-    const data = await res.json();
-    return data.translatedText;
-  }
+  //   const data = await res.json();
+  //   return data.translatedText;
+  // }
 
   function getLangName(code) {
     return fallbackNames[code] || "English";
@@ -336,9 +336,9 @@ ${content}`,
       // let text = parts[i] ? parts[i] : getSectionContent(el);
       let text = parts[i];
 
-      if (lang !== "en") {
-        text = await translate(text, lang);
-      }
+      // if (lang !== "en") {
+      //   text = await translate(text, lang);
+      // }
       if (typeof text === "object" && text !== null) {
         text = Object.values(text)[0];
       }
