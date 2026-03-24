@@ -81,40 +81,43 @@ if (window.__PAGEPILOT__) {
     return false;
   }
 
-  function speak(text, lang) {
-    return new Promise((resolve) => {
-      if (!text) return resolve();
+  async function speak(text, lang) {
+    if (!text) return;
 
-      speechSynthesis.cancel();
+    speechSynthesis.cancel();
 
-      const prefixes = [
-        "Here's the idea: ",
-        "In simple terms: ",
-        "What this means is: ",
-        "Basically: ",
-      ];
+    const voices = await loadVoices();
 
-      const speech = new SpeechSynthesisUtterance(
-        prefixes[Math.floor(Math.random() * prefixes.length)] + text,
+    // 🎯 find exact match first
+    let voice =
+      voices.find((v) => v.lang === lang) ||
+      voices.find((v) => v.lang.startsWith(lang.split("-")[0]));
+
+    // fallback to any Indian voice
+    if (!voice) {
+      voice = voices.find((v) =>
+        ["hi", "ta", "te", "bn", "mr", "gu", "kn", "ml"].some((l) =>
+          v.lang.startsWith(l),
+        ),
       );
-      speech.lang = lang;
+    }
 
-      // 🔥 pick best voice
-      const voices = speechSynthesis.getVoices();
-      const voice = voices.find((v) => v.lang === lang);
+    const speech = new SpeechSynthesisUtterance(text);
 
-      if (voice) {
-        speech.voice = voice;
-      } else {
-        console.warn("⚠️ Voice not found for", lang);
-      }
+    if (voice) {
+      speech.voice = voice;
+      console.log("🎤 Using voice:", voice.name, voice.lang);
+    } else {
+      console.warn("⚠️ No matching voice found");
+    }
 
-      speech.rate = 0.95;
-      speech.pitch = 1;
+    speech.lang = lang;
+    speech.rate = 0.9;
+    speech.pitch = 1;
 
+    return new Promise((resolve) => {
       speech.onend = resolve;
       speech.onerror = resolve;
-
       speechSynthesis.speak(speech);
     });
   }
