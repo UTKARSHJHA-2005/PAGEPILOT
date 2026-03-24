@@ -97,38 +97,6 @@ if (window.__PAGEPILOT__) {
       const speech = new SpeechSynthesisUtterance(
         prefixes[Math.floor(Math.random() * prefixes.length)] + text,
       );
-
-      // ✅ ADD THIS
-      speech.lang = lang;
-      speech.rate = 1;
-      speech.pitch = 1;
-
-      let finished = false;
-
-      speech.onend = () => {
-        if (!finished) {
-          finished = true;
-          resolve();
-        }
-      };
-
-      speech.onerror = () => {
-        if (!finished) {
-          finished = true;
-          resolve();
-        }
-      };
-
-      speechSynthesis.speak(speech);
-
-      // OPTIONAL timeout (only if stuck)
-      // setTimeout(() => {
-      //   if (!finished) {
-      //     speechSynthesis.cancel();
-      //     finished = true;
-      //     resolve();
-      //   }
-      // }, maxDuration);
     });
   }
 
