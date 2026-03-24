@@ -890,7 +890,7 @@ if (window.__PAGEPILOT__) {
         if (isListening) {
           recognition.stop();
         } else {
-          recognition.lang = getLangCode(lang); // update lang in case it changed
+          recognition.lang = getLangCode(lang);
           recognition.start();
         }
       };
@@ -922,10 +922,10 @@ User question: ${q}
 
 Instructions:
 - Answer in ${langName} ONLY
-- First, directly answer the question in 1-2 simple sentences
-- Then add YOUR own insight — a related fact, real-world example, or interesting angle
-- Start your insight with phrases like "What's interesting is...", "Fun fact:", "Think of it like...", or "My take is..."
-- Keep total response to 3-4 sentences max
+- First, directly answer the question in 1-2 simple sentences in ${langName} only.
+- Then add YOUR own insight in ${langName} only — a related fact, real-world example, or interesting angle
+- Start your insight with phrases in ${langName} only like "What's interesting is...", "Fun fact:", "Think of it like...", or "My take is..."
+- Keep total response to 3-4 sentences max in ${langName} only.
 - Be friendly and conversational`,
           },
           resolve,
