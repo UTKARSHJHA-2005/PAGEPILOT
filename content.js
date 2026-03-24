@@ -362,58 +362,36 @@ Answer in ${langName}, simple and short.`,
   async function getFullExplanation(content, sectionCount, lang) {
     console.log("📤 Sending to background...");
     const langName = getLangName(lang);
+    const cappedCount = Math.min(sectionCount, 6); // ✅ prevents truncated JSON
+
     return new Promise((resolve) => {
       chrome.runtime.sendMessage(
         {
           action: "GET_AI",
-          prompt: `You are a professional teacher.
-
-Explain the following webpage in VERY SIMPLE terms.
-
-STRICT RULES:
-- Use ONLY ${langName} language
-- DO NOT mix any other language
-- DO NOT include English words unless necessary
-- DO NOT copy the original text
-- Explain like teaching a beginner
-- Keep sentences short and clear
-
-Divide into EXACTLY ${sectionCount} parts.
-
-Return ONLY a JSON array of strings. Do not wrap the response in code blocks or markdown.
-Example:
-["text1","text2","text3"]
-
-STRICT:
-- Do NOT miss closing brackets
-- Do NOT add explanation
-- Do NOT add markdown
-- Output must be directly parsable by JSON.parse()
-
-Content:
-${content}`,
+          prompt: `You are a teacher explaining a webpage simply.
+ 
+Rules:
+- Language: ${langName} ONLY
+- Do NOT copy original text
+- Short, simple sentences
+- Divide into EXACTLY ${cappedCount} parts
+ 
+IMPORTANT: Output ONLY a raw JSON array of ${cappedCount} strings.
+No markdown, no code blocks, no extra text.
+Start your response with [ and end with ]
+ 
+Example format: ["part1","part2","part3"]
+ 
+Webpage content:
+${content.slice(0, 2500)}`,
         },
         (response) => {
           if (!response || !response.success) {
             console.error("AI error:", response?.error);
             return resolve(null);
           }
-          try {
-            let aiText = null;
-
-            if (response && response.success && response.text) {
-              aiText = response.text;
-            } else {
-              console.error("❌ Invalid AI response:", response);
-              return resolve(null);
-            }
-            console.log("🧠 RAW AI RESPONSE:\n", aiText);
-
-            resolve(aiText);
-          } catch (e) {
-            console.error("Parse error:", e);
-            resolve(null);
-          }
+          console.log("🧠 RAW AI RESPONSE:\n", response.text);
+          resolve(response.text);
         },
       );
     });
