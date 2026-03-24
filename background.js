@@ -49,4 +49,44 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
 
     return true;
   }
+  if (req.action === "TRANSLATE") {
+    fetch("https://libretranslate.de/translate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        q: req.text,
+        source: "en",
+        target: req.lang,
+        format: "text",
+      }),
+    })
+      .then(async (res) => {
+        const text = await res.text();
+
+        let data;
+
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          console.error("❌ Translate JSON error:", text);
+          return sendResponse({
+            success: false,
+            error: "Invalid translate response",
+          });
+        }
+
+        sendResponse({
+          success: true,
+          text: data.translatedText,
+        });
+      })
+      .catch((err) => {
+        console.error("❌ Translate error:", err);
+        sendResponse({ success: false, error: err.toString() });
+      });
+
+    return true;
+  }
 });
