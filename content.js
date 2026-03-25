@@ -61,8 +61,6 @@ if (window.__PAGEPILOT__) {
   }
 
   // ─── Fetch NotoSans font as base64 for Unicode support ───────────────────
-  // We fetch the font from the extension's own files (must be in web_accessible_resources)
-  // Falls back gracefully if not available
   async function loadUnicodeFont(doc) {
     try {
       const fontUrl = chrome.runtime.getURL("NotoSans-Regular.ttf");
@@ -84,7 +82,6 @@ if (window.__PAGEPILOT__) {
     }
   }
 
-  // ─── PDF Download ─────────────────────────────────────────────────────────
   async function downloadAsPDF() {
     const jsPDF = await loadJsPDF();
     if (!jsPDF) {
@@ -390,7 +387,7 @@ Instructions:
       return btn;
     };
 
-    // const downloadBtn = mkBtn("📄", "Download PDF");
+    const downloadBtn = mkBtn("📄", "Download PDF");
     const chatBtn = mkBtn("💬", "Ask & Speak");
     menu.appendChild(downloadBtn);
     menu.appendChild(chatBtn);
@@ -583,8 +580,8 @@ For each section, do TWO things:
 Rules:
 - Language: ${langName} ONLY
 - Do NOT copy the original text word for word
-- Keep each part to 3-4 sentences max
-- First 2 sentences: explain the content simply
+- Keep each part to 3-4 sentences max in ${langName} only.
+- First 2 sentences: explain the content simply in ${langName} only.
 - Last 1-2 sentences: YOUR own insight in ${langName} ONLY — start with "What I find interesting is...", "Think of it like...", "In real life this means...", or "My take is..."
 - Be conversational and engaging, like a smart friend explaining it
 - Divide into EXACTLY ${cappedCount} parts
