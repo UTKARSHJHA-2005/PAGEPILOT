@@ -451,7 +451,6 @@ Instructions:
     attachHoverMenu(lang);
   }
 
-  // ─── moveTo ───────────────────────────────────────────────────────────────
   function moveTo(element) {
     const wrapper = document.getElementById("pp-avatar-wrapper");
     if (!wrapper) return;
