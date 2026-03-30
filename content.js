@@ -1,7 +1,7 @@
 if (window.__PAGEPILOT__) {
   // Clean up old instance first
-  document.getElementById('pp-avatar-wrapper')?.remove();
-  document.getElementById('pagepilot-chat')?.remove();
+  document.getElementById("pp-avatar-wrapper")?.remove();
+  document.getElementById("pagepilot-chat")?.remove();
   window.__PAGEPILOT__ = false; // Reset the flag
 } else {
   window.__PAGEPILOT__ = true;
@@ -627,6 +627,96 @@ ${content.slice(0, 2500)}`,
       if (matches?.length > 0) return matches.map((m) => m.slice(1, -1));
       return null;
     }
+  }
+
+  async function createAvatar(lang = "en") {
+    currentLang = lang;
+
+    avatar = document.createElement("div");
+    avatar.style.cssText = `width:80px;height:80px;cursor:pointer;`;
+
+    // Inline SVG humanoid — no external dependency
+    avatar.innerHTML = `
+    <svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="pp-skin" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#FDDBB4"/>
+          <stop offset="100%" stop-color="#F5C48A"/>
+        </linearGradient>
+        <linearGradient id="pp-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#5c6bc0"/>
+          <stop offset="100%" stop-color="#3949ab"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Shadow -->
+      <ellipse cx="40" cy="77" rx="20" ry="4" fill="#9FA8DA" opacity="0.3"/>
+
+      <!-- Legs -->
+      <rect x="27" y="58" width="9" height="16" rx="4" fill="#3949ab"/>
+      <rect x="38" y="58" width="9" height="16" rx="4" fill="#3949ab"/>
+      <!-- Shoes -->
+      <ellipse cx="31" cy="74" rx="8" ry="4" fill="#283593"/>
+      <ellipse cx="42" cy="74" rx="8" ry="4" fill="#283593"/>
+
+      <!-- Body -->
+      <rect x="22" y="42" width="36" height="20" rx="8" fill="url(#pp-body)"/>
+      <!-- Tie -->
+      <polygon points="38,44 42,44 43,55 40,58 37,55" fill="#7986CB" opacity="0.9"/>
+
+      <!-- Neck -->
+      <rect x="33" y="39" width="14" height="10" rx="5" fill="url(#pp-skin)"/>
+
+      <!-- Left arm (raised / pointing) -->
+      <rect x="8" y="44" width="16" height="9" rx="4" fill="url(#pp-body)"/>
+      <rect x="3" y="37" width="10" height="9" rx="4" fill="url(#pp-skin)" transform="rotate(-30,8,42)"/>
+      <!-- pointing finger -->
+      <rect x="1" y="27" width="5" height="13" rx="2.5" fill="url(#pp-skin)" transform="rotate(-20,3,33)"/>
+
+      <!-- Right arm (relaxed) -->
+      <rect x="58" y="44" width="14" height="9" rx="4" fill="url(#pp-body)"/>
+      <rect x="69" y="46" width="9" height="16" rx="4" fill="url(#pp-skin)"/>
+
+      <!-- Head -->
+      <ellipse cx="40" cy="28" rx="17" ry="18" fill="url(#pp-skin)"/>
+
+      <!-- Hair -->
+      <ellipse cx="40" cy="12" rx="16" ry="7" fill="#4A2C0A"/>
+      <ellipse cx="24" cy="20" rx="6" ry="9" fill="#4A2C0A"/>
+      <ellipse cx="56" cy="20" rx="6" ry="9" fill="#4A2C0A"/>
+
+      <!-- Eyes -->
+      <ellipse cx="33" cy="27" rx="4" ry="4.5" fill="#fff"/>
+      <ellipse cx="47" cy="27" rx="4" ry="4.5" fill="#fff"/>
+      <circle cx="34" cy="28" r="2.5" fill="#1a1a2e"/>
+      <circle cx="48" cy="28" r="2.5" fill="#1a1a2e"/>
+      <circle cx="35" cy="26.5" r="1" fill="#fff"/>
+      <circle cx="49" cy="26.5" r="1" fill="#fff"/>
+
+      <!-- Eyebrows -->
+      <path d="M28 21 Q33 18 38 21" fill="none" stroke="#5D3A1A" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M42 21 Q47 18 52 21" fill="none" stroke="#5D3A1A" stroke-width="1.8" stroke-linecap="round"/>
+
+      <!-- Smile -->
+      <path d="M33 36 Q40 42 47 36" fill="none" stroke="#C87941" stroke-width="2" stroke-linecap="round"/>
+
+      <!-- Ears -->
+      <ellipse cx="23" cy="28" rx="3" ry="5" fill="#F0B47A"/>
+      <ellipse cx="57" cy="28" rx="3" ry="5" fill="#F0B47A"/>
+
+      <!-- Animated glow ring (speaking indicator) -->
+      <circle id="pp-pulse" cx="40" cy="40" r="36" fill="none" stroke="#5c6bc0" stroke-width="2.5" opacity="0.6"
+        style="transform-origin:center;animation:pp-ring 1.4s ease-out infinite"/>
+    </svg>
+    <style>
+      @keyframes pp-ring {
+        0%   { r: 36; opacity: 0.6; }
+        100% { r: 46; opacity: 0; }
+      }
+    </style>
+  `;
+
+    attachHoverMenu(lang);
   }
 
   // ─── Tour ─────────────────────────────────────────────────────────────────
