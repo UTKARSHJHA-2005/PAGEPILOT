@@ -423,34 +423,6 @@ Instructions:
     };
   }
 
-  // ─── Create Avatar ────────────────────────────────────────────────────────
-  async function createAvatar(lang = "en") {
-    await waitForLottie();
-    currentLang = lang;
-
-    avatar = document.createElement("div");
-    avatar.style.cssText = `width:80px;height:80px;cursor:pointer;`;
-
-    try {
-      const url = chrome.runtime.getURL("AIbot.json");
-      const res = await fetch(url);
-      const animationData = await res.json();
-      lottieInstance = lottie.loadAnimation({
-        container: avatar,
-        renderer: "svg",
-        loop: true,
-        autoplay: true,
-        animationData,
-      });
-    } catch (err) {
-      console.error("❌ Lottie failed:", err);
-      avatar.textContent = "🤖";
-      avatar.style.cssText += `font-size:48px;line-height:80px;text-align:center;`;
-    }
-
-    attachHoverMenu(lang);
-  }
-
   function moveTo(element) {
     const wrapper = document.getElementById("pp-avatar-wrapper");
     if (!wrapper) return;
