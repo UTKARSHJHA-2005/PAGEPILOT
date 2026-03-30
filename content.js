@@ -940,21 +940,10 @@ Reply in ${langName} only. No JSON, just plain text.`,
         chrome.runtime.sendMessage(
           {
             action: "GET_AI",
-            prompt: `You are an enthusiastic AI guide explaining a YouTube video chapter by chapter.
-
-Video title: "${fresh.title}"
-Chapters:
-${chapterList}
-
-Instructions:
-- Respond in ${langName} ONLY
-- Output ONLY a raw JSON array of ${fresh.chapters.length} strings. No markdown, no code blocks. Start with [ end with ]
-- Each string = 2-3 sentence explanation of that chapter
-- First sentence: what this chapter covers
-- Second sentence: why it matters or an interesting insight
-- Be conversational and engaging
-
-Example: ["This chapter covers X. What's great is Y.","This part explains Z. Think of it like W."]`,
+            prompt: `Explain each chapter of this YouTube video in 1-2 sentences each.
+Title: "${fresh.title}"
+Chapters: ${fresh.chapters.map((c, i) => `${i + 1}.[${c.time}] ${c.label}`).join(" | ")}
+Output ONLY a JSON array of ${fresh.chapters.length} strings in ${langName}. Example: ["Explains X.","Covers Y."]`,
           },
           resolve,
         ),
