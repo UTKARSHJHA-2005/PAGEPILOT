@@ -1,5 +1,8 @@
 if (window.__PAGEPILOT__) {
-  console.log("⚠️ Already running");
+  // Clean up old instance first
+  document.getElementById('pp-avatar-wrapper')?.remove();
+  document.getElementById('pagepilot-chat')?.remove();
+  window.__PAGEPILOT__ = false; // Reset the flag
 } else {
   window.__PAGEPILOT__ = true;
 
@@ -583,7 +586,7 @@ Rules:
 - Keep each part to 3-4 sentences max in ${langName} only.
 - First 2 sentences: explain the content simply in ${langName} only.
 - Last 1-2 sentences: YOUR own insight in ${langName} ONLY — start with "What I find interesting is...", "Think of it like...", "In real life this means...", or "My take is..."
-- Be conversational and engaging, like a smart friend explaining it
+- Be conversational and engaging, like a smart friend explaining it in ${langName} only.
 - Divide into EXACTLY ${cappedCount} parts
 
 IMPORTANT: Output ONLY a raw JSON array of ${cappedCount} strings.
