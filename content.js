@@ -750,7 +750,6 @@ ${content.slice(0, 2500)}`,
     panel.innerHTML = `
     <div style="background:linear-gradient(135deg,#5c6bc0,#7c4dff);padding:12px 18px;display:flex;align-items:center;gap:10px;">
       <div style="flex:1;">
-        <div style="color:#fff;font-weight:700;font-size:14px;">🤖 PagePilot — Video Guide</div>
         <div id="pp-yt-title" style="color:#c5cae9;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:340px;">
           ${title || "Loading..."}
         </div>
