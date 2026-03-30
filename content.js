@@ -1491,12 +1491,18 @@ Instructions:
     );
   }
 
-  // ─── Entry ────────────────────────────────────────────────────────────────
   chrome.runtime.onMessage.addListener(async (req) => {
     if (req.action === "START") {
       const lang = req.lang || "en";
       await createAvatar(lang);
-      startTour(req.time || 40000, req.useAI, lang);
+
+      if (isYouTubePage()) {
+        // YouTube mode — panel below video, no heading tour
+        startYouTubeTour(lang);
+      } else {
+        // Normal webpage mode — heading-by-heading tour
+        startTour(req.time || 40000, req.useAI, lang);
+      }
     }
   });
 }
