@@ -1255,6 +1255,97 @@ Instructions:
     }
   }
 
+  async function downloadYouTubePDF(videoTitle) {
+    const jsPDF = await loadJsPDF();
+    if (!jsPDF) {
+      alert("Could not load PDF library.");
+      return;
+    }
+
+    const doc = new jsPDF({ unit: "mm", format: "a4" });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 15;
+    const maxWidth = pageWidth - margin * 2;
+    let y = 20;
+
+    const hasUnicodeFont = await loadUnicodeFont(doc);
+    const bodyFont = hasUnicodeFont ? "NotoSans" : "helvetica";
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.setTextColor(60, 60, 180);
+    doc.text("PagePilot — YouTube Summary", margin, y);
+    y += 8;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(120, 120, 120);
+    const urlLines = doc.splitTextToSize(
+      `Video: ${window.location.href}`,
+      maxWidth,
+    );
+    doc.text(urlLines, margin, y);
+    y += urlLines.length * 4 + 2;
+    doc.text(`Generated: ${new Date().toLocaleString()}`, margin, y);
+    y += 8;
+
+    doc.setDrawColor(180, 180, 220);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 8;
+
+    const { chapters } = getYouTubeData();
+
+    aiResponses.forEach((text, i) => {
+      if (y > 260) {
+        doc.addPage();
+        y = 20;
+      }
+
+      const heading = chapters[i]
+        ? `[${chapters[i].time}] ${chapters[i].label}`
+        : i === 0
+          ? "Video Summary"
+          : `Section ${i + 1}`;
+
+      doc.setFont(bodyFont, "normal");
+      doc.setFontSize(12);
+      doc.setTextColor(40, 40, 150);
+      const headingLines = doc.splitTextToSize(
+        `${i + 1}. ${heading}`,
+        maxWidth,
+      );
+      doc.text(headingLines, margin, y);
+      y += headingLines.length * 6 + 2;
+
+      doc.setFont(bodyFont, "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(40, 40, 40);
+      const bodyLines = doc.splitTextToSize(text, maxWidth);
+      bodyLines.forEach((line) => {
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.text(line, margin, y);
+        y += 5.5;
+      });
+      y += 5;
+    });
+
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let p = 1; p <= totalPages; p++) {
+      doc.setPage(p);
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(8);
+      doc.setTextColor(160, 160, 160);
+      doc.text(`PagePilot AI — Page ${p} of ${totalPages}`, margin, 290);
+    }
+
+    doc.save(
+      `PagePilot_YT_${(videoTitle.slice(0, 30) || "video").replace(/\s+/g, "_")}.pdf`,
+    );
+  }
+
   async function createAvatar(lang = "en") {
     currentLang = lang;
 
