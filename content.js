@@ -615,146 +615,275 @@ ${content.slice(0, 2500)}`,
     );
   }
 
+  // ─── Wait for a DOM element to appear (YouTube loads lazily) ──────────────
+  function waitForElement(selector, timeout = 8000) {
+    return new Promise((resolve) => {
+      const el = document.querySelector(selector);
+      if (el) return resolve(el);
+
+      const observer = new MutationObserver(() => {
+        const found = document.querySelector(selector);
+        if (found) {
+          observer.disconnect();
+          resolve(found);
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+
+      setTimeout(() => {
+        observer.disconnect();
+        resolve(null); // timed out
+      }, timeout);
+    });
+  }
+
+  // ─── Scrape all available YouTube video data ──────────────────────────────
   function getYouTubeData() {
+    // Title — try multiple selectors in priority order
     const title =
       document
-        .querySelector(
-          "h1.ytd-video-primary-info-renderer, yt-formatted-string.ytd-video-primary-info-renderer",
-        )
-        ?.innerText?.trim() || document.title.replace(" - YouTube", "").trim();
+        .querySelector("h1.style-scope.ytd-watch-metadata yt-formatted-string")
+        ?.innerText?.trim() ||
+      document.querySelector("h1.ytd-watch-metadata")?.innerText?.trim() ||
+      document.querySelector("#title h1")?.innerText?.trim() ||
+      document
+        .querySelector("h1.style-scope.ytd-video-primary-info-renderer")
+        ?.innerText?.trim() ||
+      document.title.replace(" - YouTube", "").trim();
+
+    // Description — expand it first if collapsed
+    const expandBtn = document.querySelector(
+      "tp-yt-paper-button#expand, #expand",
+    );
+    if (expandBtn) expandBtn.click();
 
     const description =
       document
-        .querySelector(
-          "ytd-text-inline-expander yt-attributed-string, #description-inline-expander, #description yt-formatted-string",
-        )
-        ?.innerText?.trim()
-        ?.slice(0, 1500) || "";
+        .querySelector("#description-inline-expander yt-attributed-string")
+        ?.innerText?.trim() ||
+      document
+        .querySelector("ytd-text-inline-expander yt-attributed-string")
+        ?.innerText?.trim() ||
+      document.querySelector("#snippet-text")?.innerText?.trim() ||
+      document
+        .querySelector("#description yt-formatted-string")
+        ?.innerText?.trim() ||
+      document
+        .querySelector("ytd-video-secondary-info-renderer #description")
+        ?.innerText?.trim() ||
+      "";
 
+    // Chapters — multiple possible containers
     const chapters = [];
-    document
-      .querySelectorAll(
-        "ytd-macro-markers-list-item-renderer, #endpoint.ytd-chapter-renderer",
-      )
-      .forEach((el) => {
-        const time = el
-          .querySelector("#time, .macro-markers")
-          ?.innerText?.trim();
-        const label = el
-          .querySelector("#title, #chapter-title")
-          ?.innerText?.trim();
-        if (time && label) chapters.push({ time, label });
+    const chapterEls = document.querySelectorAll(
+      "ytd-macro-markers-list-item-renderer, " +
+        "ytd-chapter-renderer, " +
+        "#endpoint.ytd-macro-markers-list-item-renderer",
+    );
+
+    chapterEls.forEach((el) => {
+      const time = el
+        .querySelector(
+          ".macro-markers, #time, span.ytd-macro-markers-list-item-renderer",
+        )
+        ?.innerText?.trim();
+      const label =
+        el.querySelector("#chapter-title, #title, h4")?.innerText?.trim() ||
+        el.querySelector("yt-formatted-string")?.innerText?.trim();
+      if (time && label) chapters.push({ time, label });
+    });
+
+    // Also try the progress bar chapters (visible on hover)
+    if (!chapters.length) {
+      document.querySelectorAll(".ytp-chapter-title-content").forEach((el) => {
+        const label = el.innerText?.trim();
+        if (label && !chapters.find((c) => c.label === label)) {
+          chapters.push({ time: "", label });
+        }
       });
+    }
 
     return { title, description, chapters };
   }
 
+  // ─── YouTube Tour ─────────────────────────────────────────────────────────
   async function startYouTubeTour(lang = "en") {
-    const { title, description, chapters } = getYouTubeData();
     const langName = getLangName(lang);
     const langCode = getLangCode(lang);
 
-    // ── Insert avatar panel below the video
-    let panel = document.getElementById("pp-yt-panel");
-    if (panel) panel.remove();
+    // Wait for YouTube's main content to actually render
+    const waitTarget = await waitForElement(
+      "ytd-watch-metadata, #above-the-fold, ytd-video-primary-info-renderer",
+      8000,
+    );
 
-    panel = document.createElement("div");
+    if (!waitTarget) {
+      console.warn("⚠️ YouTube metadata not found after waiting");
+    }
+
+    // Extra delay for description + chapters to hydrate
+    await new Promise((r) => setTimeout(r, 1500));
+
+    const { title, description, chapters } = getYouTubeData();
+    console.log("🎬 YT Data:", {
+      title,
+      description: description.slice(0, 100),
+      chapters,
+    });
+
+    // ── Remove old panel
+    document.getElementById("pp-yt-panel")?.remove();
+
+    const panel = document.createElement("div");
     panel.id = "pp-yt-panel";
     panel.style.cssText = `
-    margin: 12px 0 0 0;
+    margin: 16px 0;
     background: #fff;
     border-radius: 16px;
     border: 1.5px solid #e0e0f0;
     box-shadow: 0 4px 24px rgba(0,0,0,0.10);
     font-family: sans-serif;
     overflow: hidden;
+    z-index: 999;
   `;
 
     panel.innerHTML = `
-    <div style="background:linear-gradient(135deg,#5c6bc0,#7c4dff);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;">
-      <span style="color:#fff;font-weight:700;font-size:14px;">🤖 PagePilot — Video Guide</span>
-      <button id="pp-yt-close" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">✕</button>
+    <div style="background:linear-gradient(135deg,#5c6bc0,#7c4dff);padding:12px 18px;display:flex;align-items:center;gap:10px;">
+      <div style="flex:1;">
+        <div style="color:#fff;font-weight:700;font-size:14px;">🤖 PagePilot — Video Guide</div>
+        <div id="pp-yt-title" style="color:#c5cae9;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:340px;">
+          ${title || "Loading..."}
+        </div>
+      </div>
+      <button id="pp-yt-close" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:14px;cursor:pointer;border-radius:8px;padding:4px 10px;flex-shrink:0;">✕ Close</button>
     </div>
 
-    <div style="padding:14px 18px;display:flex;gap:10px;flex-wrap:wrap;border-bottom:1px solid #f0f0f8;">
+    <div style="padding:12px 18px;display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid #f0f0f8;background:#fafafe;">
       <button id="pp-yt-summarize" style="
         background:linear-gradient(135deg,#5c6bc0,#7c4dff);color:#fff;
-        border:none;border-radius:20px;padding:8px 18px;
-        cursor:pointer;font-size:13px;font-weight:600;">
+        border:none;border-radius:20px;padding:8px 16px;
+        cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;">
         📋 Summarize
       </button>
       <button id="pp-yt-chapters" style="
         background:#f0f0ff;color:#5c6bc0;
-        border:1.5px solid #c5cae9;border-radius:20px;padding:8px 18px;
-        cursor:pointer;font-size:13px;font-weight:600;">
+        border:1.5px solid #c5cae9;border-radius:20px;padding:8px 16px;
+        cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;">
         📑 Walk Chapters
+        <span id="pp-chapter-count" style="background:#c5cae9;color:#3949ab;border-radius:10px;padding:1px 7px;font-size:11px;">
+          ${chapters.length || "?"}
+        </span>
       </button>
       <button id="pp-yt-dl" style="
         background:#f0f0ff;color:#5c6bc0;
-        border:1.5px solid #c5cae9;border-radius:20px;padding:8px 18px;
-        cursor:pointer;font-size:13px;font-weight:600;">
-        📄 Download PDF
+        border:1.5px solid #c5cae9;border-radius:20px;padding:8px 16px;
+        cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;">
+        📄 PDF
       </button>
     </div>
 
     <div id="pp-yt-output" style="
-      padding:16px 18px;min-height:80px;max-height:260px;
+      padding:16px 18px;min-height:80px;max-height:280px;
       overflow-y:auto;font-size:13px;color:#333;line-height:1.7;
       background:#fafafe;
     ">
-      <span style="color:#aaa;">Press a button above to start ✨</span>
+      <div style="color:#9fa8da;text-align:center;padding:20px 0;">
+        <div style="font-size:28px;margin-bottom:8px;">🎬</div>
+        <div style="font-weight:600;color:#5c6bc0;">${title || "YouTube Video"}</div>
+        <div style="font-size:12px;margin-top:4px;">
+          ${chapters.length ? `${chapters.length} chapters detected` : "No chapters detected"} 
+          · Press a button above to start
+        </div>
+      </div>
     </div>
 
-    <div style="padding:10px 18px;border-top:1px solid #eee;display:flex;gap:6px;background:#fff;align-items:center;">
+    <div style="padding:10px 14px;border-top:1px solid #eee;display:flex;gap:6px;background:#fff;align-items:center;">
       <input id="pp-yt-input" placeholder="Ask anything about this video..." style="
         flex:1;padding:8px 12px;border-radius:20px;
-        border:1.5px solid #c5cae9;font-size:13px;outline:none;
+        border:1.5px solid #c5cae9;font-size:13px;outline:none;background:#fafafe;
       "/>
       <button id="pp-yt-mic" title="Voice input" style="
         background:linear-gradient(135deg,#5c6bc0,#7c4dff);color:#fff;
         border:none;border-radius:50%;width:36px;height:36px;
-        cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+        cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
       ">🎙️</button>
       <button id="pp-yt-send" style="
         background:linear-gradient(135deg,#5c6bc0,#7c4dff);color:#fff;
-        border:none;border-radius:20px;padding:8px 14px;
+        border:none;border-radius:20px;padding:8px 16px;
         cursor:pointer;font-size:13px;font-weight:600;flex-shrink:0;
       ">Ask</button>
     </div>
   `;
 
-    // Insert below the video title area
-    const target =
-      document.querySelector("ytd-watch-metadata") ||
-      document.querySelector("#above-the-fold") ||
-      document.querySelector("#primary-inner");
+    // ── Smart insertion: try multiple YouTube layout targets
+    const insertTargets = [
+      "#below", // primary container below player
+      "ytd-watch-metadata", // metadata block
+      "#above-the-fold", // above fold wrapper
+      "ytd-video-secondary-info-renderer", // secondary info
+      "#primary-inner", // primary inner
+      "#columns #primary", // columns layout
+    ];
 
-    if (target) {
-      target.insertAdjacentElement("afterend", panel);
-    } else {
+    let inserted = false;
+    for (const sel of insertTargets) {
+      const el = document.querySelector(sel);
+      if (el) {
+        el.prepend(panel);
+        inserted = true;
+        console.log("✅ Panel inserted into:", sel);
+        break;
+      }
+    }
+    if (!inserted) {
+      // Last resort: fixed overlay
+      panel.style.cssText += `position:fixed;bottom:20px;right:20px;width:400px;z-index:9999999;margin:0;`;
       document.body.appendChild(panel);
+      console.warn("⚠️ Panel inserted as fixed overlay (no YT target found)");
+    }
+
+    // ── Scroll panel into view
+    setTimeout(
+      () => panel.scrollIntoView({ behavior: "smooth", block: "nearest" }),
+      500,
+    );
+
+    // ── Output helpers
+    function setOutput(html) {
+      const out = document.getElementById("pp-yt-output");
+      if (out) {
+        out.innerHTML = html;
+        out.scrollTop = out.scrollHeight;
+      }
+    }
+
+    function appendOutput(html) {
+      const out = document.getElementById("pp-yt-output");
+      if (out) {
+        out.innerHTML += html;
+        out.scrollTop = out.scrollHeight;
+      }
+    }
+
+    function loadingHTML(msg = "Thinking...") {
+      return `
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 0;color:#7c4dff;">
+        <div style="width:18px;height:18px;border:2px solid #c5cae9;border-top-color:#7c4dff;border-radius:50%;animation:pp-spin 0.8s linear infinite;flex-shrink:0;"></div>
+        <span>${msg}</span>
+      </div>
+      <style>@keyframes pp-spin{to{transform:rotate(360deg)}}</style>`;
     }
 
     // ── Close
     document.getElementById("pp-yt-close").onclick = () => panel.remove();
 
-    // ── Output helper
-    function setOutput(html, append = false) {
-      const out = document.getElementById("pp-yt-output");
-      if (!out) return;
-      if (append) out.innerHTML += html;
-      else out.innerHTML = html;
-      out.scrollTop = out.scrollHeight;
-    }
-
-    function loadingHTML(msg = "Thinking...") {
-      return `<span style="color:#7c4dff;">⏳ ${msg}</span>`;
-    }
-
     // ── Summarize
     document.getElementById("pp-yt-summarize").onclick = async () => {
-      setOutput(loadingHTML("Summarizing the video..."));
+      setOutput(loadingHTML("Reading the video info..."));
       aiResponses = [];
+
+      // Re-fetch data at click time (description may have loaded by now)
+      const fresh = getYouTubeData();
 
       const res = await new Promise((resolve) =>
         chrome.runtime.sendMessage(
@@ -762,15 +891,15 @@ ${content.slice(0, 2500)}`,
             action: "GET_AI",
             prompt: `You are an enthusiastic AI guide explaining a YouTube video.
 
-Video title: "${title}"
-Description: "${description}"
+Video title: "${fresh.title}"
+Description: "${fresh.description || "(no description available)"}"
 
 Instructions:
 - Respond in ${langName} ONLY
-- Write a rich summary in 4-6 sentences in ${langName}
+- Write a rich summary in 4-6 sentences
 - Cover: what the video is about, who it's for, key points, and why it's worth watching
-- Start with "This video is about..." in ${langName}
-- Add your own take at the end: what you find most interesting about it
+- Start with "This video is about..."
+- End with your own take: what you find most interesting
 - Be conversational, warm, and engaging`,
           },
           resolve,
@@ -781,25 +910,38 @@ Instructions:
         setOutput("❌ AI failed. Try again.");
         return;
       }
+
       const text = res.text.replace(/```json|```/g, "").trim();
       aiResponses.push(text);
-      setOutput(`<div style="line-height:1.8;">${text}</div>`);
+      setOutput(`
+      <div style="padding:4px 0;">
+        <div style="font-size:11px;font-weight:700;color:#9fa8da;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">📋 Summary</div>
+        <div style="line-height:1.85;color:#333;">${text}</div>
+      </div>
+    `);
       await speak(text, langCode);
     };
 
     // ── Walk Chapters
     document.getElementById("pp-yt-chapters").onclick = async () => {
-      if (!chapters.length) {
-        setOutput(
-          `<span style="color:#e57373;">⚠️ No chapters found for this video. Try Summarize instead.</span>`,
-        );
+      // Re-fetch chapters at click time
+      const fresh = getYouTubeData();
+
+      if (!fresh.chapters.length) {
+        setOutput(`
+        <div style="text-align:center;padding:24px;color:#e57373;">
+          <div style="font-size:24px;margin-bottom:8px;">📭</div>
+          <div style="font-weight:600;">No chapters found</div>
+          <div style="font-size:12px;margin-top:4px;color:#aaa;">This video doesn't have chapters. Try Summarize instead.</div>
+        </div>
+      `);
         return;
       }
 
-      setOutput(loadingHTML(`Explaining ${chapters.length} chapters...`));
+      setOutput(loadingHTML(`Explaining ${fresh.chapters.length} chapters...`));
       aiResponses = [];
 
-      const chapterList = chapters
+      const chapterList = fresh.chapters
         .map((c, i) => `${i + 1}. [${c.time}] ${c.label}`)
         .join("\n");
 
@@ -809,19 +951,19 @@ Instructions:
             action: "GET_AI",
             prompt: `You are an enthusiastic AI guide explaining a YouTube video chapter by chapter.
 
-Video title: "${title}"
+Video title: "${fresh.title}"
 Chapters:
 ${chapterList}
 
 Instructions:
 - Respond in ${langName} ONLY
-- Output ONLY a raw JSON array of ${chapters.length} strings. No markdown, no code blocks.
-- Each string = a 2-3 sentence explanation of that chapter in ${langName}
-- First sentence: what this chapter is about
+- Output ONLY a raw JSON array of ${fresh.chapters.length} strings. No markdown, no code blocks. Start with [ end with ]
+- Each string = 2-3 sentence explanation of that chapter
+- First sentence: what this chapter covers
 - Second sentence: why it matters or an interesting insight
-- Be conversational and engaging in ${langName}
+- Be conversational and engaging
 
-Example: ["This chapter covers X. What's great about this is Y.","This part explains Z. Think of it like W."]`,
+Example: ["This chapter covers X. What's great is Y.","This part explains Z. Think of it like W."]`,
           },
           resolve,
         ),
@@ -834,85 +976,125 @@ Example: ["This chapter covers X. What's great about this is Y.","This part expl
 
       const parts = cleanAIResponse(res.text);
       if (!parts) {
-        setOutput("❌ Could not parse chapters. Try again.");
+        setOutput("❌ Could not parse response. Try again.");
         return;
       }
 
-      let html = "";
-      for (let i = 0; i < chapters.length; i++) {
-        const text = parts[i] || `Chapter: ${chapters[i].label}`;
+      let html = `<div style="font-size:11px;font-weight:700;color:#9fa8da;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">📑 Chapter Walkthrough</div>`;
+
+      for (let i = 0; i < fresh.chapters.length; i++) {
+        const text =
+          typeof parts[i] === "string"
+            ? parts[i]
+            : `Chapter: ${fresh.chapters[i].label}`;
         aiResponses.push(text);
         html += `
-        <div style="margin-bottom:14px;padding:10px 14px;background:#f0f0ff;border-radius:10px;border-left:3px solid #5c6bc0;">
-          <div style="font-weight:700;color:#3949ab;font-size:12px;margin-bottom:4px;">
-            ⏱ ${chapters[i].time} — ${chapters[i].label}
+        <div style="margin-bottom:12px;padding:10px 14px;background:#f0f0ff;border-radius:10px;border-left:3px solid #5c6bc0;">
+          <div style="font-weight:700;color:#3949ab;font-size:11px;margin-bottom:5px;display:flex;gap:8px;align-items:center;">
+            <span style="background:#5c6bc0;color:#fff;border-radius:4px;padding:1px 6px;font-size:10px;">${i + 1}</span>
+            ${fresh.chapters[i].time ? `<span style="color:#7986cb;">⏱ ${fresh.chapters[i].time}</span>` : ""}
+            <span>${fresh.chapters[i].label}</span>
           </div>
           <div style="color:#333;font-size:13px;line-height:1.7;">${text}</div>
         </div>`;
       }
       setOutput(html);
 
-      // Read aloud each chapter with a small pause
       for (let i = 0; i < aiResponses.length; i++) {
         await speak(aiResponses[i], langCode);
-        await new Promise((r) => setTimeout(r, 400));
+        await new Promise((r) => setTimeout(r, 350));
       }
     };
 
-    // ── Download PDF
+    // ── PDF
     document.getElementById("pp-yt-dl").onclick = async () => {
       if (!aiResponses.length) {
-        setOutput(
-          `<span style="color:#e57373;">⚠️ Run Summarize or Walk Chapters first to generate content for the PDF.</span>`,
-        );
+        setOutput(`
+        <div style="text-align:center;padding:20px;color:#e57373;">
+          <div style="font-size:22px;margin-bottom:8px;">📄</div>
+          <div>Run <strong>Summarize</strong> or <strong>Walk Chapters</strong> first to generate PDF content.</div>
+        </div>`);
         return;
       }
       await downloadYouTubePDF(title);
     };
 
-    // ── Chat / Ask
+    // ── Chat
     const sendBtn = document.getElementById("pp-yt-send");
     const inputEl = document.getElementById("pp-yt-input");
+    const chatHistory = []; // keep conversation context
 
     async function handleYTChat() {
       const q = inputEl.value.trim();
       if (!q) return;
       inputEl.value = "";
-      setOutput(loadingHTML(`Answering: "${q}"`));
-      console.log("Chat Sent");
+
+      const fresh = getYouTubeData();
+
+      // Show user bubble + thinking in output
+      appendOutput(`
+      <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+        <div style="background:linear-gradient(135deg,#5c6bc0,#7c4dff);color:#fff;border-radius:16px 16px 4px 16px;padding:8px 12px;max-width:85%;font-size:13px;">
+          ${q}
+        </div>
+      </div>
+    `);
+
+      const thinkingId = "pp-think-" + Date.now();
+      appendOutput(
+        `<div id="${thinkingId}">${loadingHTML("Thinking...")}</div>`,
+      );
+
+      chatHistory.push({ role: "user", content: q });
+
+      const contextPrompt = `You are a helpful AI assistant. The user is watching a YouTube video.
+
+Video title: "${fresh.title}"
+Description: "${(fresh.description || "").slice(0, 600)}"
+${fresh.chapters.length ? `Chapters:\n${fresh.chapters.map((c) => `[${c.time}] ${c.label}`).join("\n")}` : ""}
+
+Conversation so far:
+${chatHistory
+  .slice(-6)
+  .map((m) => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`)
+  .join("\n")}
+
+Instructions:
+- Answer in ${langName} ONLY
+- Be direct, 2-3 sentences, then add one interesting insight
+- Be friendly and conversational`;
 
       const res = await new Promise((resolve) =>
         chrome.runtime.sendMessage(
           {
             action: "GET_AI",
-            prompt: `You are an AI assistant. The user is watching a YouTube video and asked a question about it.
-
-Video title: "${title}"
-Description: "${description.slice(0, 800)}"
-${chapters.length ? `Chapters:\n${chapters.map((c) => `[${c.time}] ${c.label}`).join("\n")}` : ""}
-
-User question: ${q}
-
-Instructions:
-- Answer in ${langName} ONLY
-- Answer directly in 2-3 sentences in ${langName}
-- Then add your own insight or related fact in ${langName}
-- Be friendly and conversational`,
+            prompt: contextPrompt,
           },
           resolve,
         ),
       );
 
+      document.getElementById(thinkingId)?.remove();
+
       if (!res?.success) {
-        setOutput("❌ AI failed. Try again.");
+        appendOutput(
+          `<div style="color:#e57373;font-size:13px;margin-bottom:8px;">❌ AI failed. Try again.</div>`,
+        );
         return;
       }
-      const text = res.text.replace(/```json|```/g, "").trim();
-      setOutput(`
-      <div style="margin-bottom:8px;font-size:12px;color:#7c4dff;font-weight:600;">You asked: ${q}</div>
-      <div style="line-height:1.8;">${text}</div>
+
+      const answer = res.text.replace(/```json|```/g, "").trim();
+      chatHistory.push({ role: "assistant", content: answer });
+
+      appendOutput(`
+      <div style="display:flex;justify-content:flex-start;margin-bottom:12px;">
+        <div style="background:#fff;border:1px solid #e8e8f0;color:#333;border-radius:16px 16px 16px 4px;padding:8px 12px;max-width:85%;font-size:13px;line-height:1.6;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          ${answer}
+        </div>
+      </div>
     `);
-      await speak(text, langCode);
+
+      await speak(answer, langCode);
     }
 
     sendBtn.onclick = handleYTChat;
@@ -922,18 +1104,16 @@ Instructions:
 
     // ── Mic
     const micBtn = document.getElementById("pp-yt-mic");
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
       micBtn.style.opacity = "0.4";
       micBtn.style.cursor = "not-allowed";
     } else {
-      const rec = new SpeechRecognition();
+      const rec = new SR();
       rec.continuous = false;
       rec.interimResults = false;
       rec.lang = langCode;
       let listening = false;
-
       rec.onstart = () => {
         listening = true;
         micBtn.textContent = "⏹️";
@@ -943,7 +1123,7 @@ Instructions:
         inputEl.value = e.results[0][0].transcript;
         setTimeout(() => sendBtn.click(), 300);
       };
-      rec.onerror = (e) => console.warn("Mic error:", e.error);
+      rec.onerror = (e) => console.warn("Mic:", e.error);
       rec.onend = () => {
         listening = false;
         micBtn.textContent = "🎙️";
