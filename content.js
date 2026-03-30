@@ -1029,22 +1029,10 @@ Output ONLY a JSON array of ${fresh.chapters.length} strings in ${langName}. Exa
 
       chatHistory.push({ role: "user", content: q });
 
-      const contextPrompt = `You are a helpful AI assistant. The user is watching a YouTube video.
-
-Video title: "${fresh.title}"
-Description: "${(fresh.description || "").slice(0, 600)}"
-${fresh.chapters.length ? `Chapters:\n${fresh.chapters.map((c) => `[${c.time}] ${c.label}`).join("\n")}` : ""}
-
-Conversation so far:
-${chatHistory
-  .slice(-6)
-  .map((m) => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`)
-  .join("\n")}
-
-Instructions:
-- Answer in ${langName} ONLY
-- Be direct, 4-5 sentences, then add one interesting insight
-- Be friendly and conversational`;
+      const contextPrompt = `You are a helpful assistant. User is watching: "${fresh.title}".
+${fresh.description ? `About: ${fresh.description.slice(0, 300)}` : ""}
+Question: ${q}
+Answer in ${langName} in 2-3 sentences. Be direct and friendly.`;
 
       const res = await new Promise((resolve) =>
         chrome.runtime.sendMessage(
