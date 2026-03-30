@@ -1028,8 +1028,11 @@ Example: ["This chapter covers X. What's great is Y.","This part explains Z. Thi
       const q = inputEl.value.trim();
       if (!q) return;
       inputEl.value = "";
+      console.log("💬 Chat triggered with:", q);
 
       const fresh = getYouTubeData();
+        console.log("📺 Fresh YT data:", fresh);
+
 
       // Show user bubble + thinking in output
       appendOutput(`
