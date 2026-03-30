@@ -456,23 +456,31 @@ Instructions:
     if (!wrapper) return;
 
     const rect = element.getBoundingClientRect();
-    const top = Math.max(10, rect.top + rect.height / 2 - 40);
-    const left = Math.max(10, rect.left - 100);
+    const scrollY = window.scrollY || document.documentElement.scrollTop;
+    const scrollX = window.scrollX || document.documentElement.scrollLeft;
 
-    wrapper.style.transition = "all 1s ease";
-    wrapper.style.top = top + "px";
-    wrapper.style.left = left + "px";
+    // Place avatar to LEFT of heading, vertically centered on it
+    const top = scrollY + rect.top + rect.height / 2 - 40;
+    const left = scrollX + rect.left - 96; // 80px avatar + 16px gap
 
+    wrapper.style.transition = "all 0.7s cubic-bezier(0.34,1.56,0.64,1)";
+    wrapper.style.position = "absolute"; // switch from fixed to absolute for scroll-following
+    wrapper.style.top = Math.max(scrollY + 10, top) + "px";
+    wrapper.style.left = Math.max(10, left) + "px";
+
+    // Bounce
     if (bounceInterval) clearInterval(bounceInterval);
     let bounce = true;
     bounceInterval = setInterval(() => {
-      wrapper.style.transform = bounce ? "translateY(-6px)" : "translateY(6px)";
+      wrapper.style.transform = bounce
+        ? "translateY(-5px) scale(1.05)"
+        : "translateY(5px) scale(0.97)";
       bounce = !bounce;
-    }, 300);
+    }, 400);
     setTimeout(() => {
       clearInterval(bounceInterval);
-      wrapper.style.transform = "translateY(0)";
-    }, 1500);
+      wrapper.style.transform = "none";
+    }, 1600);
   }
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
