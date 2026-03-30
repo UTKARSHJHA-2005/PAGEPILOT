@@ -1061,7 +1061,7 @@ ${chatHistory
 
 Instructions:
 - Answer in ${langName} ONLY
-- Be direct, 2-3 sentences, then add one interesting insight
+- Be direct, 4-5 sentences, then add one interesting insight
 - Be friendly and conversational`;
 
       const res = await new Promise((resolve) =>
@@ -1132,6 +1132,25 @@ Instructions:
       micBtn.onclick = () => (listening ? rec.stop() : rec.start());
     }
   }
+  console.log("🧪 Testing background connection...");
+  chrome.runtime.sendMessage(
+    { action: "GET_AI", prompt: "Say: connection OK" },
+    (res) => {
+      if (chrome.runtime.lastError) {
+        console.error(
+          "❌ Background connection FAILED:",
+          chrome.runtime.lastError.message,
+        );
+      } else if (!res?.success) {
+        console.error("❌ Background returned failure:", JSON.stringify(res));
+      } else {
+        console.log(
+          "✅ Background connection OK. Response:",
+          res.text?.slice(0, 60),
+        );
+      }
+    },
+  );
 
   async function downloadYouTubePDF(videoTitle) {
     const jsPDF = await loadJsPDF();
