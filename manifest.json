@@ -10,7 +10,7 @@
   "action": {
     "default_popup": "popup.html"
   },
-  "icon": {
+  "icons": {
     "16": "Logo.png",
     "48": "Logo.png",
     "128": "Logo.png"

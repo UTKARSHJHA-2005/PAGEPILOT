@@ -1,109 +1,110 @@
 <!doctype html>
 <html>
-<head>
-  <title>AI Learning Guide</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f7fb;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
+  <head>
+    <title>AI Learning Guide</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f7fb;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
 
-    .container {
-      background: white;
-      padding: 20px 25px;
-      border-radius: 12px;
-      width: 300px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
+      .container {
+        background: white;
+        padding: 20px 25px;
+        border-radius: 12px;
+        width: 300px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
 
-    h3 {
-      text-align: center;
-      color: #2c3e50;
-      margin-bottom: 15px;
-    }
+      h3 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 15px;
+      }
 
-    label {
-      font-size: 14px;
-      color: #555;
-      display: block;
-      margin-top: 10px;
-    }
+      label {
+        font-size: 14px;
+        color: #555;
+        display: block;
+        margin-top: 10px;
+      }
 
-    input, select {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
+      input,
+      select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+      }
 
-    .checkbox {
-      display: flex;
-      align-items: center;
-      margin-top: 12px;
-    }
+      .checkbox {
+        display: flex;
+        align-items: center;
+        margin-top: 12px;
+      }
 
-    .checkbox input {
-      width: auto;
-      margin-right: 8px;
-    }
+      .checkbox input {
+        width: auto;
+        margin-right: 8px;
+      }
 
-    .hint {
-      font-size: 12px;
-      color: #888;
-      margin-top: 3px;
-    }
+      .hint {
+        font-size: 12px;
+        color: #888;
+        margin-top: 3px;
+      }
 
-    button {
-      width: 100%;
-      margin-top: 15px;
-      padding: 10px;
-      background: #4a90e2;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+      button {
+        width: 100%;
+        margin-top: 15px;
+        padding: 10px;
+        background: #4a90e2;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
 
-    button:hover {
-      background: #357abd;
-    }
-  </style>
-</head>
+      button:hover {
+        background: #357abd;
+      }
+    </style>
+  </head>
 
-<body>
-  <div class="container">
-    <h3>AI Learning Guide</h3>
+  <body>
+    <div class="container">
+      <h3>AI Learning Guide</h3>
 
-    <label>Total Study Time (seconds)</label>
-    <input type="number" id="time" value="40" />
-    <div class="hint">Set how long the session will run</div>
+      <label>Total Study Time (seconds)</label>
+      <input type="number" id="time" value="40" />
+      <div class="hint">Set how long the session will run</div>
 
-    <label>Select Language</label>
-    <select id="lang">
-      <option>English</option>
-      <option>Hindi</option>
-      <option>Spanish</option>
-    </select>
-    <div class="hint">Choose your preferred explanation language</div>
+      <label>Select Language</label>
+      <select id="lang">
+        <option>English</option>
+        <option>Hindi</option>
+        <option>Spanish</option>
+      </select>
+      <div class="hint">Choose your preferred explanation language</div>
 
-    <div class="checkbox">
-      <input type="checkbox" id="useAI" checked />
-      <label for="useAI">Enable AI Explanation</label>
+      <div class="checkbox">
+        <input type="checkbox" id="useAI" checked />
+        <label for="useAI">Enable AI Explanation</label>
+      </div>
+      <div class="hint">AI will explain concepts step-by-step</div>
+
+      <button id="start">Start Learning</button>
     </div>
-    <div class="hint">AI will explain concepts step-by-step</div>
 
-    <button id="start">Start Learning</button>
-  </div>
-
-  <script src="popup.js"></script>
-</body>
+    <script src="popup.js"></script>
+  </body>
 </html>
