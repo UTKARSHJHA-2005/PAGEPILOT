@@ -1361,10 +1361,13 @@ Answer in ${langName} in 2-3 sentences. Be direct and friendly.`;
   chrome.runtime.onMessage.addListener(async (req) => {
     if (req.action === "START") {
       const lang = req.lang || "en";
+      await createAvatar(lang);
+
       if (isYouTubePage()) {
+        // Remove avatar specifically for YouTube, keep panel only
+        document.getElementById("pp-avatar-wrapper")?.remove();
         startYouTubeTour(lang);
       } else {
-        // Normal webpage mode — heading-by-heading tour
         startTour(req.time || 40000, req.useAI, lang);
       }
     }
