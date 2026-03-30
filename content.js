@@ -888,18 +888,10 @@ ${content.slice(0, 2500)}`,
         chrome.runtime.sendMessage(
           {
             action: "GET_AI",
-            prompt: `You are an enthusiastic AI guide explaining a YouTube video.
-
-Video title: "${fresh.title}"
-Description: "${fresh.description || "(no description available)"}"
-
-Instructions:
-- Respond in ${langName} ONLY
-- Write a rich summary in 4-6 sentences
-- Cover: what the video is about, who it's for, key points, and why it's worth watching
-- Start with "This video is about..."
-- End with your own take: what you find most interesting
-- Be conversational, warm, and engaging`,
+            prompt: `Summarize this YouTube video in 3-4 sentences. Be engaging.
+Title: "${fresh.title}"
+Description: "${fresh.description?.slice(0, 600) || "not available"}"
+Reply in ${langName} only. No JSON, just plain text.`,
           },
           resolve,
         ),
