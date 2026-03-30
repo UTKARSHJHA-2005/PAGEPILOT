@@ -1031,8 +1031,7 @@ Example: ["This chapter covers X. What's great is Y.","This part explains Z. Thi
       console.log("💬 Chat triggered with:", q);
 
       const fresh = getYouTubeData();
-        console.log("📺 Fresh YT data:", fresh);
-
+      console.log("📺 Fresh YT data:", fresh);
 
       // Show user bubble + thinking in output
       appendOutput(`
@@ -1081,7 +1080,7 @@ Instructions:
 
       if (!res?.success) {
         appendOutput(
-          `<div style="color:#e57373;font-size:13px;margin-bottom:8px;">❌ AI failed. Try again.</div>`,
+          `<div style="color:#e57373;font-size:13px;margin-bottom:8px;">❌ AI failed. ${JSON.stringify(res?.error || res)}</div>`,
         );
         return;
       }
