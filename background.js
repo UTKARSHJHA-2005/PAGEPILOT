@@ -5,7 +5,8 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
     fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: "Bearer ",
+        Authorization:
+          "Bearer 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",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

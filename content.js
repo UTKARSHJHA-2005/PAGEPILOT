@@ -608,6 +608,47 @@ ${content.slice(0, 2500)}`,
     }
   }
 
+  function isYouTubePage() {
+    return (
+      location.hostname.includes("youtube.com") &&
+      location.pathname === "/watch"
+    );
+  }
+
+  function getYouTubeData() {
+    const title =
+      document
+        .querySelector(
+          "h1.ytd-video-primary-info-renderer, yt-formatted-string.ytd-video-primary-info-renderer",
+        )
+        ?.innerText?.trim() || document.title.replace(" - YouTube", "").trim();
+
+    const description =
+      document
+        .querySelector(
+          "ytd-text-inline-expander yt-attributed-string, #description-inline-expander, #description yt-formatted-string",
+        )
+        ?.innerText?.trim()
+        ?.slice(0, 1500) || "";
+
+    const chapters = [];
+    document
+      .querySelectorAll(
+        "ytd-macro-markers-list-item-renderer, #endpoint.ytd-chapter-renderer",
+      )
+      .forEach((el) => {
+        const time = el
+          .querySelector("#time, .macro-markers")
+          ?.innerText?.trim();
+        const label = el
+          .querySelector("#title, #chapter-title")
+          ?.innerText?.trim();
+        if (time && label) chapters.push({ time, label });
+      });
+
+    return { title, description, chapters };
+  }
+
   async function createAvatar(lang = "en") {
     currentLang = lang;
 
