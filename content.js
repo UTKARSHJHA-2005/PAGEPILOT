@@ -552,27 +552,24 @@ Instructions:
       chrome.runtime.sendMessage(
         {
           action: "GET_AI",
-          prompt: `You are an enthusiastic AI guide explaining a webpage to a curious beginner.
+          prompt: ` You are an enthusiastic AI guide explaining a webpage to a curious beginner.
 
-For each section, do TWO things:
-1. Explain what the section says in simple words
-2. ADD your own thought — a fun fact, real-world example, why it matters, or your personal take
+            For each section, Explain what the section says in simple words
 
-Rules:
-- Language: ${langName} ONLY
-- Do NOT copy the original text word for word
-- Keep each part to 3-4 sentences max in ${langName} only.
-- First 2 sentences: explain the content simply in ${langName} only.
-- Be conversational and engaging, like a smart friend explaining it in ${langName} only.
-- Divide into EXACTLY ${cappedCount} parts
+            Rules:
+            - Language: ${langName} ONLY
+            - Do NOT copy the original text word for word
+            - Keep each part to 3-4 sentences max in ${langName} only.
+            - First 2 sentences: explain the content simply in ${langName} only.
+            - Be conversational and engaging, like a smart friend explaining it in ${langName} only.
+            - Divide into EXACTLY ${cappedCount} parts
 
-IMPORTANT: Output ONLY a raw JSON array of ${cappedCount} strings.
-No markdown, no code blocks, no extra text. Start with [ and end with ]
+            IMPORTANT: Output ONLY a raw JSON array of ${cappedCount} strings.
+            No markdown, no code blocks, no extra text. Start with [ and end with ]
 
-Example: ["This section talks about X. In real life this means Y.","This part explains Z. What I find interesting is W."]
+            Example: ["This section talks about X. In real life this means Y.","This part explains Z. What I find interesting is W."]
 
-Webpage content:
-${content.slice(0, 2500)}`,
+            Webpage content: ${content.slice(0, 1200)} `,
         },
         (response) => {
           if (!response || !response.success) {
