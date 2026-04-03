@@ -319,7 +319,6 @@ User question: ${q}
 Instructions:
 - Answer in ${langName} ONLY
 - First, directly answer the question in 1-2 simple sentences in ${langName} only.
-- Then add YOUR own insight in ${langName} only — a related fact, real-world example, or interesting angle
 - Keep total response to 3-4 sentences max in ${langName} only.
 - Be friendly and conversational`,
           },
@@ -558,7 +557,6 @@ Instructions:
 
             Rules:
             - Language: ${langName} ONLY
-            - Do NOT copy the original text word for word
             - Keep each part to 3-4 sentences max in ${langName} only.
             - First 2 sentences: explain the content simply in ${langName} only.
             - Be conversational and engaging, like a smart friend explaining it in ${langName} only.
